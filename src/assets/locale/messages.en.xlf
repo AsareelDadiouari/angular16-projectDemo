@@ -35,6 +35,46 @@
           <context context-type="linenumber">57</context>
         </context-group>
       </trans-unit>
+      <trans-unit id="5222794619351669261" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/>A.<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> Intern Info</source>
+        <target><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/>A.<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> Intern Info</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">11</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7199807597315905483" datatype="html">
+        <source>Permanent Code</source>
+        <target>Permanent Code</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">14</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4360072995007239979" datatype="html">
+        <source>Firstname</source>
+        <target>Firstname</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">18</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7617062131879090220" datatype="html">
+        <source>Lastname</source>
+        <target>Lastname</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">22</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3359553072354610839" datatype="html">
+        <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/>B.<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> How do you estimate the intern overall performance</source>
+        <target><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/>B.<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> How do you estimate the intern overall performance</target>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">19</context>
+        </context-group>
+      </trans-unit>
     </body>
   </file>
 </xliff>

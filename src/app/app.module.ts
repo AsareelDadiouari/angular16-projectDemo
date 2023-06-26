@@ -17,15 +17,22 @@ import {SafeBASE64Pipe} from "./pipes/safeBASE64.pipe";
 import {HttpClientModule} from "@angular/common/http";
 import {MatButtonToggleModule} from "@angular/material/button-toggle";
 import { HeaderComponent } from './components/header/header.component';
+import {AssessmentFormComponent} from "./pages/assessment-form.component";
+import {ReactiveFormsModule} from "@angular/forms";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
+import {MatSelectModule} from "@angular/material/select";
+import {MatStepperModule} from "@angular/material/stepper";
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
+    HeaderComponent,
+    AssessmentFormComponent,
     CastPipe,
     SafeHTMLPipe,
     SafeBASE64Pipe,
-    HeaderComponent
   ],
   imports: [
     BrowserModule,
@@ -40,7 +47,12 @@ import { HeaderComponent } from './components/header/header.component';
     RouterOutlet,
     AppRoutingModule,
     HttpClientModule,
-    MatButtonToggleModule
+    MatButtonToggleModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatStepperModule
   ],
   providers: [],
   bootstrap: [AppComponent]

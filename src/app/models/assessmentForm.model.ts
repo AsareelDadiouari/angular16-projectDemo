@@ -1,7 +1,8 @@
-import {Intern} from "./Intern";
-import {Supervisor} from "./Supervisor.model";
+import {Intern} from "./intern";
+import {Supervisor} from "./supervisor.model";
 
 export type AssessmentForm = {
+  id: string
   studentIntern : Intern
   internshipRatingNote: string
   traineeSkillEval: TraineeSkillEval
