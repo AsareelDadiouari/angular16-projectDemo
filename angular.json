@@ -5,6 +5,14 @@
   "projects": {
     "SujetSpecial": {
       "projectType": "application",
+      "i18n": {
+        "sourceLocale": "en-US",
+        "locales": {
+          "fr": {
+            "translation": "src/locale/messages.fr.xlf"
+          }
+        }
+      },
       "schematics": {},
       "root": "",
       "sourceRoot": "src",
@@ -14,6 +22,8 @@
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/sujet-special",
+            "localize": ["fr"],
+            "i18nMissingTranslation": "error",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -72,7 +82,9 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "SujetSpecial:build"
+            "browserTarget": "SujetSpecial:build",
+            "format": "xlf",
+            "outputPath": "src/locale"
           }
         },
         "test": {

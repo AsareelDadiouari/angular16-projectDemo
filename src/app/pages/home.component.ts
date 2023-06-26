@@ -1,5 +1,4 @@
 import {Component, OnInit, signal} from "@angular/core";
-import {NgTemplateOutlet} from "@angular/common";
 
 @Component({
   selector: 'app-landing-page',
@@ -10,23 +9,13 @@ import {NgTemplateOutlet} from "@angular/common";
       }
     </style>
     <section class="main">
-      <input type="file" (change)="uploadImageEvent($event)">
-      <div *ngIf="image()"><img [src]="image() | safeBASE64" alt="image" width="200px"></div>
 
-      <ng-container [ngTemplateOutlet]="template1" [ngTemplateOutletContext]="array"></ng-container>
 
-      <ng-template #template1 let-data>
-        <div *ngFor="let i in data">
-          {{i}}AAAAAAAAAAAAAAAAAAAAAAAAAA
-        </div>
-      </ng-template>
     </section>
   `,
-  //styleUrls: ['./landing-page.component.css']
 })
 export class HomeComponent implements OnInit{
   image = signal<string | ArrayBuffer | null>(null);
-  array: number[] = [1,2,3,4,5,6,7,8,9,0];
 
   ngOnInit(): void {
   }
