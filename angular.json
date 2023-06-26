@@ -9,7 +9,10 @@
         "sourceLocale": "en-US",
         "locales": {
           "fr": {
-            "translation": "src/locale/messages.fr.xlf"
+            "translation": "src/assets/locale/messages.fr.xlf"
+          },
+          "en": {
+            "translation": "src/assets/locale/messages.en.xlf"
           }
         }
       },
@@ -32,7 +35,12 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "src/assets/locale/",
+                "output": "src/assets/locale/"
+              }
             ],
             "styles": [
               "@angular/material/prebuilt-themes/deeppurple-amber.css",
@@ -84,7 +92,7 @@
           "options": {
             "browserTarget": "SujetSpecial:build",
             "format": "xlf",
-            "outputPath": "src/locale"
+            "outputPath": "src/assets/locale/"
           }
         },
         "test": {
@@ -97,7 +105,12 @@
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "src/assets/locale/",
+                "output": "src/assets/locale/"
+              }
             ],
             "styles": [
               "@angular/material/prebuilt-themes/deeppurple-amber.css",

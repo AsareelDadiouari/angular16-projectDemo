@@ -18,42 +18,6 @@ p {
   margin: 0;
 }
 
-.spacer {
-  flex: 1;
-}
-
-.toolbar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 60px;
-  display: flex;
-  align-items: center;
-  background-color: #1976d2;
-  color: white;
-  font-weight: 600;
-}
-
-.toolbar img {
-  margin: 0 16px;
-}
-
-.toolbar #twitter-logo {
-  height: 40px;
-  margin: 0 8px;
-}
-
-.toolbar #youtube-logo {
-  height: 40px;
-  margin: 0 16px;
-}
-
-.toolbar #twitter-logo:hover,
-.toolbar #youtube-logo:hover {
-  opacity: 0.8;
-}
-
 .content {
   display: flex;
   margin: 82px auto 32px;
@@ -288,3 +252,44 @@ svg#clouds {
     visibility: hidden;
   }
 }
+
+.example-sidenav {
+  width: 250px;
+  background-color: #fff;
+}
+
+.mat-drawer-content {
+  padding: 16px;
+}
+
+.mat-list {
+  margin-top: 16px;
+}
+
+.mat-list-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  transition: background-color 0.3s ease;
+  border-bottom: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.mat-list-item:last-child {
+  border-bottom: none;
+}
+
+.mat-list-item:hover {
+  background-color: #000;
+  color: #fff;
+}
+
+.mat-list-item span {
+  font-size: 16px;
+}
+
+.mat-list-item mat-icon {
+  margin-right: 12px;
+  color: #555;
+}
+
