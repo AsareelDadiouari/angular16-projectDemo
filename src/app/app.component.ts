@@ -22,6 +22,9 @@ registerLocaleData(localeEn, 'en');
         <router-outlet></router-outlet>
       </div>
     </mat-drawer-container>
+    <div *ngIf="loading" class="spinner-overlay">
+      <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+    </div>
   `,
   styleUrls: ['./app.component.css'],
   providers: [{ provide: LOCALE_ID, useValue: 'en-US' }]
@@ -31,8 +34,11 @@ export class AppComponent implements OnInit{
     { code: 'en-US', label: 'English' },
     { code: 'fr', label: 'Français' }
   ];
+  loading = false;
   ngOnInit(): void {
+    this.loading = true;
+    setTimeout(() => {
+      this.loading = false;
+    }, 2000);
   }
-
-
 }

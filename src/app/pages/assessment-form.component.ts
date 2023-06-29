@@ -321,12 +321,8 @@ import {LocalizationService} from "../services/localization.service";
         </form>
       </mat-step>
 
-
-
     </mat-stepper>
-    <button mat-raised-button color="primary" (click)="submitForm()">Submit</button>
-
-
+    <button [disabled]="studentInfoForm.invalid" class="submit-button" mat-raised-button color="primary" (click)="submitForm()">Submit</button>
   `,
   styles: [`
     .container {

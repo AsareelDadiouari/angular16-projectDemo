@@ -2,6 +2,9 @@ import {Component, inject, Input} from '@angular/core';
 import {MatDrawer} from "@angular/material/sidenav";
 import {MatButtonToggleChange} from "@angular/material/button-toggle";
 import {LocalizationService} from "../../services/localization.service";
+import {MatDialog} from "@angular/material/dialog";
+import {AuthenticationDialogComponent} from "../dialogs/authentication-dialog.component";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-header',
@@ -20,6 +23,9 @@ import {LocalizationService} from "../../services/localization.service";
       <span i18n="Web app Name">Assessement Tool</span>
       <button routerLink="/evaluation" style="margin-left: 15px" i18n color="primary" mat-raised-button>File an evaluation</button>
       <div class="spacer"></div>
+
+      <button type="button" mat-stroked-button color="white" (click)="handleAuthButton()" class="auth-button">Authentication</button>
+
       <mat-button-toggle-group (change)="switchLanguage($event)"  name="fontStyle" aria-label="Font Style">
         <mat-button-toggle value="fr">FR</mat-button-toggle>
         <mat-button-toggle value="en">EN</mat-button-toggle>
@@ -58,8 +64,21 @@ import {LocalizationService} from "../../services/localization.service";
     .toolbar #youtube-logo:hover {
       opacity: 0.8;
     }
+
     .spacer {
       flex: 1;
+    }
+
+    .auth-button {
+      background-color: #24292e;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+
+    .auth-button:hover {
+
+      background-color: #2949b0;
+      color: white;
     }
   `]
 })
@@ -71,10 +90,18 @@ export class HeaderComponent {
   }
   protected _drawer!: MatDrawer;
   localizationService = inject(LocalizationService);
+  dialog = inject(MatDialog);
+  router = inject(Router);
 
   switchLanguage(buttonToggle : MatButtonToggleChange): void {
     const currentLanguage = this.localizationService.getLanguage();
     const newLanguage = currentLanguage === 'en' ? 'fr' : 'en';
     this.localizationService.setLanguage(newLanguage);
+  }
+
+  handleAuthButton(){
+    const dialogRef = this.dialog.open(AuthenticationDialogComponent, {});
+    if (dialogRef === null)
+      this.router.navigate(['/auth']).then(() => alert("Failed to open dialog"))
   }
 }

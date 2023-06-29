@@ -23,6 +23,11 @@ import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import {MatSelectModule} from "@angular/material/select";
 import {MatStepperModule} from "@angular/material/stepper";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
+import {AuthenticationComponent} from "./pages/authentication.component";
+import {MatTabsModule} from "@angular/material/tabs";
+import {AuthenticationDialogComponent} from "./components/dialogs/authentication-dialog.component";
+import {MatDialog, MatDialogModule} from "@angular/material/dialog";
 
 @NgModule({
   declarations: [
@@ -30,6 +35,8 @@ import {MatStepperModule} from "@angular/material/stepper";
     HomeComponent,
     HeaderComponent,
     AssessmentFormComponent,
+    AuthenticationComponent,
+    AuthenticationDialogComponent,
     CastPipe,
     SafeHTMLPipe,
     SafeBASE64Pipe,
@@ -44,6 +51,8 @@ import {MatStepperModule} from "@angular/material/stepper";
     MatButtonModule,
     MatIconModule,
     MatListModule,
+    MatTabsModule,
+    MatDialogModule,
     RouterOutlet,
     AppRoutingModule,
     HttpClientModule,
@@ -52,7 +61,8 @@ import {MatStepperModule} from "@angular/material/stepper";
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatStepperModule
+    MatStepperModule,
+    MatProgressSpinnerModule
   ],
   providers: [ { provide: LOCALE_ID, useValue: 'en' } ],
   bootstrap: [AppComponent]
