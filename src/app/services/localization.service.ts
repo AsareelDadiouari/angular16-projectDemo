@@ -7,7 +7,7 @@ import { parseString } from 'xml2js';
   providedIn: 'root'
 })
 export class LocalizationService {
-  private currentLanguage = 'en'; // Default language
+  private currentLanguage = 'fr'; // Default language
   private translations: any; // Object to store the loaded translation files
 
   constructor(private http: HttpClient) { }

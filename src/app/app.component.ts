@@ -2,9 +2,7 @@ import {Component, effect, inject, OnInit, signal} from '@angular/core';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en'; // Import locale data for English
-import {LocalizationService} from "./services/localization.service";
-import {MatButtonToggleChange} from "@angular/material/button-toggle";
-registerLocaleData(localeEn);
+registerLocaleData(localeEn, 'en');
 
 @Component({
   selector: 'app-root',

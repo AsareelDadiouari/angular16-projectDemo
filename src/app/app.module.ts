@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import {LOCALE_ID, NgModule} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
@@ -54,7 +54,7 @@ import {MatStepperModule} from "@angular/material/stepper";
     MatSelectModule,
     MatStepperModule
   ],
-  providers: [],
+  providers: [ { provide: LOCALE_ID, useValue: 'en' } ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

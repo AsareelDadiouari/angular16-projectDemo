@@ -6,14 +6,14 @@
         <source>Home</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">15</context>
+          <context context-type="linenumber">13</context>
         </context-group>
       </trans-unit>
       <trans-unit id="1217228274280626361" datatype="html">
         <source>List of trainee evaluations</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/app.component.ts</context>
-          <context context-type="linenumber">16</context>
+          <context context-type="linenumber">14</context>
         </context-group>
       </trans-unit>
       <trans-unit id="4393603080234266626" datatype="html">
@@ -35,35 +35,250 @@
         <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/>A.<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> Intern Info</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
-          <context context-type="linenumber">11</context>
+          <context context-type="linenumber">13</context>
         </context-group>
       </trans-unit>
       <trans-unit id="7199807597315905483" datatype="html">
         <source>Permanent Code : </source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
-          <context context-type="linenumber">14</context>
+          <context context-type="linenumber">17</context>
         </context-group>
       </trans-unit>
       <trans-unit id="4360072995007239979" datatype="html">
         <source>Firstname</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
-          <context context-type="linenumber">18</context>
+          <context context-type="linenumber">24</context>
         </context-group>
       </trans-unit>
       <trans-unit id="7617062131879090220" datatype="html">
         <source>Lastname</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
-          <context context-type="linenumber">22</context>
+          <context context-type="linenumber">31</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3885497195825665706" datatype="html">
+        <source>Next</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">36</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">55</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">170</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">257</context>
         </context-group>
       </trans-unit>
       <trans-unit id="3359553072354610839" datatype="html">
         <source><x id="START_TAG_SPAN" ctype="x-span" equiv-text="&lt;span&gt;"/>B.<x id="CLOSE_TAG_SPAN" ctype="x-span" equiv-text="&lt;/span&gt;"/> How do you estimate the intern overall performance</source>
         <context-group purpose="location">
           <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
-          <context context-type="linenumber">27</context>
+          <context context-type="linenumber">43</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4901341393660662708" datatype="html">
+        <source>Evaluation of the trainee&apos;s skills and clothing</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">62</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6131295692639819427" datatype="html">
+        <source>Demonstrate autonomy</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">64</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7708270344948043036" datatype="html">
+        <source> <x id="INTERPOLATION" equiv-text="{{item}}"/> </source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">67,69</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">80,82</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">93,95</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">106,108</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">119,121</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">131,133</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">144,146</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">157,159</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">182,184</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">195,197</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">207,209</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">219,221</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">231,233</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">243,245</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3948089439301787865" datatype="html">
+        <source>Capable of active listening</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">77</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2224356166229498824" datatype="html">
+        <source>Demonstrates an ability to work in a team</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">90</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2425515906135882541" datatype="html">
+        <source>Demonstrates a good spirit of social adaptation</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">103</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="1833065886750978167" datatype="html">
+        <source>Demonstrates initiative</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">116</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5453548795183445240" datatype="html">
+        <source>Show imagination</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">128</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="7784692763345135892" datatype="html">
+        <source>Demonstrates good analytical skills</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">141</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="3644355707300156769" datatype="html">
+        <source>Demonstrates skill in oral communication</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">154</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5835859238757453951" datatype="html">
+        <source>Additional notes</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">166</context>
+        </context-group>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">253</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="45323707633822161" datatype="html">
+        <source>Assessment of trainee knowledge</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">177</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6625873165386299121" datatype="html">
+        <source>Mastering written communication</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">179</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="4510487929868138146" datatype="html">
+        <source>Knows his field of specialization well</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">192</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2168874096814046707" datatype="html">
+        <source>Is able to assume the responsibilities related to his task</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">204</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8875879823699664151" datatype="html">
+        <source>Is able to produce the requested documents</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">216</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="6957904539821126453" datatype="html">
+        <source>Is able to make recommendations</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">228</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="2410979907294204397" datatype="html">
+        <source>Is able to popularize the terminology</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">240</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="5608704787492870092" datatype="html">
+        <source>Overall evaluation of the trainee</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">264</context>
+        </context-group>
+      </trans-unit>
+      <trans-unit id="8685953085675399853" datatype="html">
+        <source>Supervisor Identification</source>
+        <context-group purpose="location">
+          <context context-type="sourcefile">src/app/pages/assessment-form.component.ts</context>
+          <context context-type="linenumber">271</context>
         </context-group>
       </trans-unit>
     </body>

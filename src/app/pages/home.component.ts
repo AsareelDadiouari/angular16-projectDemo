@@ -1,4 +1,4 @@
-import {Component, OnInit, signal} from "@angular/core";
+import {Component, LOCALE_ID, OnInit, signal} from "@angular/core";
 
 @Component({
   selector: 'app-landing-page',
@@ -13,6 +13,9 @@ import {Component, OnInit, signal} from "@angular/core";
 
     </section>
   `,
+  styles : [`
+  `],
+  providers: [{ provide: LOCALE_ID, useValue: 'en-US' }]
 })
 export class HomeComponent implements OnInit{
   image = signal<string | ArrayBuffer | null>(null);
