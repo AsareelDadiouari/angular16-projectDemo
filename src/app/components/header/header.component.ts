@@ -85,8 +85,8 @@ import {Router} from "@angular/router";
 export class HeaderComponent {
   @Input()
   set drawer(matDrawer: MatDrawer) {
-    this._drawer = matDrawer
-    this._drawer.toggle();
+    this._drawer = matDrawer;
+    setTimeout(() => this._drawer.toggle(), 2000);
   }
   protected _drawer!: MatDrawer;
   localizationService = inject(LocalizationService);
@@ -100,7 +100,10 @@ export class HeaderComponent {
   }
 
   handleAuthButton(){
-    const dialogRef = this.dialog.open(AuthenticationDialogComponent, {});
+    const dialogRef = this.dialog.open(AuthenticationDialogComponent, {
+      //height: '40%',
+      width: '300px'
+    });
     if (dialogRef === null)
       this.router.navigate(['/auth']).then(() => alert("Failed to open dialog"))
   }

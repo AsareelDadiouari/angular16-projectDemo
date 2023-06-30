@@ -28,6 +28,12 @@ import {AuthenticationComponent} from "./pages/authentication.component";
 import {MatTabsModule} from "@angular/material/tabs";
 import {AuthenticationDialogComponent} from "./components/dialogs/authentication-dialog.component";
 import {MatDialog, MatDialogModule} from "@angular/material/dialog";
+import {AngularFireModule} from "@angular/fire/compat";
+import {AngularFireDatabaseModule} from "@angular/fire/compat/database";
+import {environment} from "../environments/environment";
+import {AngularFirestoreModule} from "@angular/fire/compat/firestore";
+import {AngularFireStorageModule} from "@angular/fire/compat/storage";
+import {MatSnackBarModule} from "@angular/material/snack-bar";
 
 @NgModule({
   declarations: [
@@ -53,6 +59,7 @@ import {MatDialog, MatDialogModule} from "@angular/material/dialog";
     MatListModule,
     MatTabsModule,
     MatDialogModule,
+    MatSnackBarModule,
     RouterOutlet,
     AppRoutingModule,
     HttpClientModule,
@@ -62,7 +69,11 @@ import {MatDialog, MatDialogModule} from "@angular/material/dialog";
     MatInputModule,
     MatSelectModule,
     MatStepperModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    AngularFireModule.initializeApp(environment.firebaseConfig),
+    AngularFireDatabaseModule,
+    AngularFirestoreModule,
+    AngularFireStorageModule
   ],
   providers: [ { provide: LOCALE_ID, useValue: 'en' } ],
   bootstrap: [AppComponent]

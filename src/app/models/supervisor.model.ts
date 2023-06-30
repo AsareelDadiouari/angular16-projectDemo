@@ -6,14 +6,15 @@ export class Supervisor {
   lastname : string
   studentCode?: string
 
-  constructor(code : string, email : string, firstname : string, lastname : string) {
-    this.code = code;
-    this.email = email;
-    this.firstname = firstname;
-    this.lastname = lastname;
+
+  constructor(supervisor: Partial<Supervisor>) {
+    this.code = supervisor.code || '';
+    this.email = supervisor.email || '';
+    this.firstname = supervisor.firstname || '';
+    this.lastname = supervisor.lastname || '';
   }
 
-  protected setStudentCode(studentCode : string) {this.studentCode = studentCode}
-  protected getStudentCode() {return this.studentCode}
+  protected setStudentCode?(studentCode : string) {this.studentCode = studentCode}
+  protected getStudentCode?() {return this.studentCode}
 
 }

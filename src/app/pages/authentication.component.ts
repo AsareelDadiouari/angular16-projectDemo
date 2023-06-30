@@ -1,12 +1,17 @@
 import {Component, inject} from "@angular/core";
 import {LocalizationService} from "../services/localization.service";
 import {FormBuilder, Validators} from "@angular/forms";
+import {BackendService} from "../services/backend.service";
+import {Supervisor} from "../models/supervisor.model";
+import {Professor} from "../models/professor.model";
+import {Headmaster} from "../models/headmaster.model";
+import {LoginModel} from "../models/login.model";
 
 @Component({
   selector: 'app-login',
   template: `
     <mat-tab-group>
-      <mat-tab [label]="localizationService.getLanguage() === 'en' ? 'Login' : 'Connexion'">
+      <mat-tab class="login" [label]="localizationService.getLanguage() === 'en' ? 'Login' : 'Connexion'">
         <form class="login-form" [formGroup]="loginForm" (submit)="submitLoginForm()">
           <div class="form-group">
             <mat-form-field appearance="outline">
@@ -32,7 +37,7 @@ import {FormBuilder, Validators} from "@angular/forms";
         </form>
 
       </mat-tab>
-      <mat-tab [label]="localizationService.getLanguage() === 'en' ? 'SignUp' : 'Inscription'">
+      <mat-tab class="signUp" [label]="localizationService.getLanguage() === 'en' ? 'SignUp' : 'Inscription'">
         <form class="signup-form" [formGroup]="signUpForm" (submit)="submitSignUpForm()">
           <div class="form-group">
             <mat-form-field appearance="outline">
@@ -57,7 +62,7 @@ import {FormBuilder, Validators} from "@angular/forms";
           <div class="form-group">
             <mat-form-field appearance="outline">
               <mat-label>First Name</mat-label>
-              <input matInput formControlName="firstname" type="text" required>
+              <input id="firstname" matInput formControlName="firstname" type="text" required>
               <mat-error *ngIf="signUpForm.controls.firstname.invalid && signUpForm.controls.firstname.touched">
                 Please enter your first name.
               </mat-error>
@@ -67,7 +72,7 @@ import {FormBuilder, Validators} from "@angular/forms";
           <div class="form-group">
             <mat-form-field appearance="outline">
               <mat-label>Last Name</mat-label>
-              <input matInput formControlName="lastname" type="text" required>
+              <input id="lastname" matInput formControlName="lastname" type="text" required>
               <mat-error *ngIf="signUpForm.controls.lastname.invalid && signUpForm.controls.lastname.touched">
                 Please enter your last name.
               </mat-error>
@@ -77,7 +82,7 @@ import {FormBuilder, Validators} from "@angular/forms";
           <div class="form-group">
             <mat-form-field appearance="outline">
               <mat-label>Role</mat-label>
-              <mat-select formControlName="role" multiple required>
+              <mat-select formControlName="role" required>
                 <mat-option value="Professor">Professor</mat-option>
                 <mat-option value="Admin">Admin</mat-option>
               </mat-select>
@@ -97,13 +102,7 @@ import {FormBuilder, Validators} from "@angular/forms";
       margin-bottom: 20px;
     }
 
-    .login-form {
-      max-width: 400px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .signup-form {
+    .signup-form ,.login-form {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -121,8 +120,9 @@ import {FormBuilder, Validators} from "@angular/forms";
   `]
 })
 export class AuthenticationComponent {
+  fb = inject(FormBuilder);
+  backendService = inject(BackendService);
   localizationService = inject(LocalizationService);
-  fb = inject(FormBuilder)
   loginForm = this.fb.group({
     email: ['', Validators.required],
     password: ['', Validators.required, ],
@@ -137,10 +137,28 @@ export class AuthenticationComponent {
   });
 
   submitLoginForm() {
-    console.log(this.loginForm.getRawValue());
+    this.backendService.login(this.loginForm.getRawValue() as LoginModel);
   }
 
   submitSignUpForm() {
-    console.log(this.signUpForm.getRawValue());
+    const supervisorData = this.signUpForm.getRawValue();
+
+    if (supervisorData.role?.includes("Professeur")  || supervisorData.role?.includes("Professor") ){
+      const supervisor: Professor = {
+        code: '',
+        email: supervisorData.email || '',
+        firstname: supervisorData.firstname || '',
+        lastname: supervisorData.lastname || '',
+        password: supervisorData.password || '',
+      };
+      this.backendService.createSupervisor(new Professor({... supervisor}));
+    } else
+      this.backendService.createSupervisor({
+        code: '',
+        email: supervisorData.email || '',
+        firstname: supervisorData.firstname || '',
+        lastname: supervisorData.lastname || '',
+        password: supervisorData.password
+      } as Headmaster);
   }
 }

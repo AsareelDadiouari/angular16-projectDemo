@@ -10,8 +10,8 @@ registerLocaleData(localeEn, 'en');
     <mat-drawer-container class="example-container" autosize>
       <mat-drawer #drawer class="example-sidenav" mode="side">
         <mat-list role="list">
-          <mat-list-item i18n routerLink="/" role="listitem">Home</mat-list-item>
-          <mat-list-item i18n role="listitem">List of trainee evaluations</mat-list-item>
+          <mat-list-item class="mat-list-item" i18n routerLink="/" role="listitem">Home</mat-list-item>
+          <mat-list-item class="mat-list-item" i18n role="listitem">List of trainee evaluations</mat-list-item>
         </mat-list>
       </mat-drawer>
 
@@ -19,12 +19,12 @@ registerLocaleData(localeEn, 'en');
 
       <!-- Main content -->
       <div class="content" role="main">
+        <div *ngIf="loading" class="spinner-overlay">
+          <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
+        </div>
         <router-outlet></router-outlet>
       </div>
     </mat-drawer-container>
-    <div *ngIf="loading" class="spinner-overlay">
-      <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
-    </div>
   `,
   styleUrls: ['./app.component.css'],
   providers: [{ provide: LOCALE_ID, useValue: 'en-US' }]

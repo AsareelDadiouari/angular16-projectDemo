@@ -1,4 +1,4 @@
-import {Component, Inject, inject, Optional} from "@angular/core";
+import {Component, Inject, inject, OnInit, Optional} from "@angular/core";
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {AuthenticationComponent} from "../../pages/authentication.component";
 
@@ -14,7 +14,10 @@ import {AuthenticationComponent} from "../../pages/authentication.component";
     }
   `]
 })
-export class AuthenticationDialogComponent {
+export class AuthenticationDialogComponent implements OnInit{
   @Optional() dialogRef = inject(MatDialogRef<AuthenticationComponent>)
   @Inject(MAT_DIALOG_DATA) data : any
+
+  ngOnInit(): void {
+  }
 }
