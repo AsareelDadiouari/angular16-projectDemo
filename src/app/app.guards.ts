@@ -5,6 +5,6 @@ import {inject} from "@angular/core";
 export function authenticationGuard(): CanActivateFn {
   return () => {
     const oauthService = inject(BackendService);
-    return oauthService.isAuthenticated().state;
+    return oauthService.authenticated().state;
   };
 }

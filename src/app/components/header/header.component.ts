@@ -1,17 +1,21 @@
-import {Component, inject, Input} from '@angular/core';
+import {Component, effect, inject, Input, OnInit} from '@angular/core';
 import {MatDrawer} from "@angular/material/sidenav";
 import {MatButtonToggleChange} from "@angular/material/button-toggle";
 import {LocalizationService} from "../../services/localization.service";
 import {MatDialog} from "@angular/material/dialog";
 import {AuthenticationDialogComponent} from "../dialogs/authentication-dialog.component";
 import {Router} from "@angular/router";
+import {BackendService} from "../../services/backend.service";
+import {Professor} from "../../models/professor.model";
+import {Headmaster} from "../../models/headmaster.model";
+import {Supervisor} from "../../models/supervisor.model";
 
 @Component({
   selector: 'app-header',
   template: `
     <!-- Toolbar -->
     <div class="toolbar" role="banner">
-      <button (click)="_drawer.toggle()" mat-icon-button type="button" >
+      <button (click)="_drawer.toggle()" mat-icon-button type="button">
         <mat-icon *ngIf="!_drawer.opened;">chevron_right</mat-icon>
         <mat-icon *ngIf="_drawer.opened">chevron_left</mat-icon>
       </button>
@@ -22,11 +26,24 @@ import {Router} from "@angular/router";
       />
       <span i18n="Web app Name">Assessement Tool</span>
       <button routerLink="/evaluation" style="margin-left: 15px" i18n color="primary" mat-raised-button>File an evaluation</button>
+      <button *ngIf="backendService.getAuthenticatedUser().state" routerLink="/codeGen" style="margin-left: 15px" color="primary" mat-raised-button>Generate a code for a student</button>
+
       <div class="spacer"></div>
 
-      <button type="button" mat-stroked-button color="white" (click)="handleAuthButton()" class="auth-button">Authentication</button>
+      <button *ngIf="!this.backendService.authenticated().state; else Name" type="button" mat-stroked-button
+              color="white" (click)="handleAuthButton()" class="auth-button">Authentication
+      </button>
+      <ng-template style="margin-right: 100px" #Name>Bonjour {{name}}</ng-template>
 
-      <mat-button-toggle-group (change)="switchLanguage($event)"  name="fontStyle" aria-label="Font Style">
+      <button *ngIf="this.backendService.authenticated().state"
+              (click)="backendService.logout()"
+              type="button"
+              mat-stroked-button
+              class="auth-button"
+              color="white"
+      >Logout</button>
+
+      <mat-button-toggle-group (change)="switchLanguage($event)" name="fontStyle" aria-label="Font Style">
         <mat-button-toggle value="fr">FR</mat-button-toggle>
         <mat-button-toggle value="en">EN</mat-button-toggle>
       </mat-button-toggle-group>
@@ -82,16 +99,30 @@ import {Router} from "@angular/router";
     }
   `]
 })
-export class HeaderComponent {
+export class HeaderComponent implements OnInit{
   @Input()
   set drawer(matDrawer: MatDrawer) {
     this._drawer = matDrawer;
     setTimeout(() => this._drawer.toggle(), 2000);
   }
+
   protected _drawer!: MatDrawer;
   localizationService = inject(LocalizationService);
+  backendService = inject(BackendService)
   dialog = inject(MatDialog);
   router = inject(Router);
+  name!: string
+
+  constructor() {
+    effect(() => {
+      const user = this.backendService.getAuthenticatedUser();
+      this.name = user.value.firstname + " " + user.value.lastname?.toUpperCase();
+    })
+  }
+
+  ngOnInit() {
+    console.log(this.backendService.authenticated().state)
+  }
 
   switchLanguage(buttonToggle : MatButtonToggleChange): void {
     const currentLanguage = this.localizationService.getLanguage();
@@ -107,4 +138,6 @@ export class HeaderComponent {
     if (dialogRef === null)
       this.router.navigate(['/auth']).then(() => alert("Failed to open dialog"))
   }
+
+  protected readonly localStorage = localStorage;
 }

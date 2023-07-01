@@ -1,6 +1,7 @@
-import {Component, inject, LOCALE_ID} from '@angular/core';
+import {Component, effect, inject, LOCALE_ID} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {LocalizationService} from "../services/localization.service";
+import {BackendService} from "../services/backend.service";
 
 @Component({
   selector: 'app-assessment-form',
@@ -379,6 +380,12 @@ import {LocalizationService} from "../services/localization.service";
 export class AssessmentFormComponent {
   fb = inject(FormBuilder)
   translationService = inject(LocalizationService)
+  backendService = inject(BackendService);
+  userInfo = this.backendService.getAuthenticatedUser();
+
+  constructor() {
+    effect(() => {})
+  }
 
   selections = [this.translationService.getLanguage() === "en" ? 'Execellent : Excellent performance that meets the standards achieved' : "Excellent : Excellentes performances qui répondent aux normes atteintes",
     this.translationService.getLanguage() === "en" ?'Very satisfactory : performance which often exceeds the standards obtained' : 'Très satisfaisant : Des performances très satisfaisantes qui dépassent souvent les standards obtenus',
@@ -386,7 +393,8 @@ export class AssessmentFormComponent {
     this.translationService.getLanguage() === "en" ?'Unsatisfactory: performance that does not meet achieved standards' : 'Insatisfaisant : performances qui ne répondent pas aux normes atteintes']
 
   studentInfoForm = this.fb.group({
-    permanentCode: ['', Validators.required, Validators.pattern(/^[A-Z]{4}[0-9]{10}$/)],
+    permanentCode: ['', [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/
+    )]],
     firstname: ['', Validators.required],
     lastname: ['', Validators.required, ],
   });
@@ -424,15 +432,16 @@ export class AssessmentFormComponent {
 
   supervisorForm = this.fb.group({
     id: ['To determine'],
-    code : [''],
-    email : [''],
-    firstname : [''],
-    lastname : [''],
+    code : [this.userInfo.state ? this.userInfo.value.code : ''],
+    email : [this.userInfo.state ? this.userInfo.value.email : ''],
+    firstname : [this.userInfo.state ? this.userInfo.value.firstname : ''],
+    lastname : [this.userInfo.state ? this.userInfo.value.lastname : ''],
     studentCode: [''],
   });
 
   submitForm() {
-     console.log(this.studentInfoForm.getRawValue())
+    console.log(this.studentInfoForm.getRawValue())
+
     console.log(this.internshipRatingNoteForm.getRawValue())
 
     console.log(this.traineeSkillEvalForm.getRawValue())

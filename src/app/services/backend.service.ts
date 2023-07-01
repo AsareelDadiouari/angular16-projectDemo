@@ -9,6 +9,8 @@ import {Professor} from "../models/professor.model";
 import {Headmaster} from "../models/headmaster.model";
 import {NotificationService} from "./notification.service";
 import {LoginModel} from "../models/login.model";
+import * as assert from "assert";
+import {Router} from "@angular/router";
 
 
 @Injectable({
@@ -19,7 +21,12 @@ export class BackendService {
   public analytics = getAnalytics(this.app);
   db = inject(AngularFireDatabase)
   notificationService = inject(NotificationService);
-  isAuthenticated = signal({user : {} as Supervisor, state: false});
+  router = inject(Router);
+  authenticated = signal({value : this.getUserFromLocal()[0] , state: this.getUserFromLocal()[1]});
+
+  constructor() {
+    //console.log(this.isAuthenticated());
+  }
 
   createSupervisor(supervisor: Professor | Headmaster){
     const pathRef = supervisor instanceof Professor ? "supervisor/professors" : "supervisor/headmaster";
@@ -35,33 +42,54 @@ export class BackendService {
 
   login(loginInfo: LoginModel){
     this.db.database.ref().once('value').then(snapshot => {
-      console.log(snapshot.val());
-      const supervisors = snapshot.val();
+      const users = snapshot.val();
 
-      if (supervisors.headmaster) {
-        const headmasterKeys = Object.keys(supervisors.headmaster);
-        const headmasterArray = Object.values(supervisors.headmaster) as Headmaster[];
+      if (users.supervisor.headmaster) {
+        const headmasterKeys = Object.keys(users.supervisor.headmaster);
+        const headmasterArray = Object.values(users.supervisor.headmaster) as Headmaster[];
         const index = headmasterArray.findIndex((user) => user.email === loginInfo.email && user.password === loginInfo.password);
 
         if (index !== -1){
-          this.isAuthenticated.set({user: headmasterArray[index], state: true});
+          headmasterArray.forEach(head => delete head.password)
+
+          this.authenticated.set({value: headmasterArray[index], state: true});
+          localStorage.setItem('auth', JSON.stringify({user: headmasterArray[index], role: "Headmaster"}));
           this.notificationService.showSuccessNotification("Connexion Reussi");
         }
       }
 
-      if (supervisors.professors) {
-        const professorKeys = Object.keys(supervisors.professors);
-        const professorArray = Object.values(supervisors.professors) as Professor[];
+      if (users.supervisor.professors) {
+        const professorKeys = Object.keys(users.supervisor.professors);
+        const professorArray = Object.values(users.supervisor.professors) as Professor[];
         const index = professorArray.findIndex((user) => user.email === loginInfo.email && user.password === loginInfo.password);
 
         if (index !== -1){
-          this.isAuthenticated.set({user: professorArray[index], state: true});
+          professorArray.forEach(prof => delete prof.password)
+
+          this.authenticated.set({value: professorArray[index], state: true});
+          localStorage.setItem('auth', JSON.stringify({user: professorArray[index], role: "Professor"}));
           this.notificationService.showSuccessNotification("Connexion Reussi");
         }
       }
 
-      console.log("Not found")
-    }).catch((err) => this.notificationService.showErrorNotification(err));
+    }).catch((err) => this.notificationService.showErrorNotification("hum thats weird " + err));
+  }
+
+  logout(){
+    this.authenticated.update((value) => {
+      value.state = false;
+      return value;
+    })
+    localStorage.removeItem('auth')
+    this.router.navigate(['/']).then(() => this.notificationService.showSuccessNotification("Deconnexion Reussi"))
+  }
+
+  getAuthenticatedUser(){
+    const data: any  = this.authenticated().value
+      return {
+        value: data.user === undefined ? data as Professor | Headmaster | Partial<Supervisor> : data.user,
+        state: this.authenticated().state
+      }
   }
 
 
@@ -89,4 +117,20 @@ export class BackendService {
       return 'unknown';
     }
   }
+
+  private getUserFromLocal(): [Professor | Headmaster | Partial<Supervisor>, boolean]{
+    const authData = localStorage.getItem('auth');
+
+    if (authData) {
+      try {
+        const user = JSON.parse(authData);
+        return user.role === "Professor" ? [user as Professor, true] : [user as Headmaster, true];
+      } catch (error) {
+        console.error('Error parsing user data from local storage:', error);
+      }
+    }
+
+    return [{}, false];
+  }
+
 }
