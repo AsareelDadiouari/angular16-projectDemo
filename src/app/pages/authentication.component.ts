@@ -1,4 +1,4 @@
-import {Component, inject} from "@angular/core";
+import {Component, ElementRef, inject, ViewChild} from "@angular/core";
 import {LocalizationService} from "../services/localization.service";
 import {FormBuilder, Validators} from "@angular/forms";
 import {BackendService} from "../services/backend.service";
@@ -6,11 +6,13 @@ import {Supervisor} from "../models/supervisor.model";
 import {Professor} from "../models/professor.model";
 import {Headmaster} from "../models/headmaster.model";
 import {LoginModel} from "../models/login.model";
+import {MatTabGroup} from "@angular/material/tabs";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-login',
   template: `
-    <mat-tab-group>
+    <mat-tab-group #Tab>
       <mat-tab class="login" [label]="localizationService.getLanguage() === 'en' ? 'Login' : 'Connexion'">
         <form class="login-form" [formGroup]="loginForm" (submit)="submitLoginForm()">
           <div class="form-group">
@@ -121,6 +123,8 @@ import {LoginModel} from "../models/login.model";
 })
 export class AuthenticationComponent {
   fb = inject(FormBuilder);
+  @ViewChild('Tab') tabGroup!: MatTabGroup;
+
   backendService = inject(BackendService);
   localizationService = inject(LocalizationService);
   loginForm = this.fb.group({
@@ -151,14 +155,18 @@ export class AuthenticationComponent {
         lastname: supervisorData.lastname || '',
         password: supervisorData.password || '',
       };
-      this.backendService.createSupervisor(new Professor({... supervisor}));
-    } else
+      this.backendService.createSupervisor(new Professor({... supervisor}))
+        .subscribe(() => {this.tabGroup.selectedIndex = 0});
+    } else {
       this.backendService.createSupervisor({
         code: '',
         email: supervisorData.email || '',
         firstname: supervisorData.firstname || '',
         lastname: supervisorData.lastname || '',
         password: supervisorData.password
-      } as Headmaster);
+      } as Headmaster)
+        .pipe(takeUntilDestroyed())
+        .subscribe(() => {this.tabGroup.selectedIndex = 0});
+    }
   }
 }

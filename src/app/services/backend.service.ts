@@ -11,6 +11,7 @@ import {NotificationService} from "./notification.service";
 import {LoginModel} from "../models/login.model";
 import * as assert from "assert";
 import {Router} from "@angular/router";
+import {take, tap} from "rxjs";
 
 
 @Injectable({
@@ -30,14 +31,26 @@ export class BackendService {
 
   createSupervisor(supervisor: Professor | Headmaster){
     const pathRef = supervisor instanceof Professor ? "supervisor/professors" : "supervisor/headmaster";
-    const pushRef = this.db.list(pathRef).push(supervisor)
 
-    pushRef.update({
-      code : this.codeGen(supervisor),
-      id: pushRef.key
-    }).then(() => {
-      this.notificationService.showSuccessNotification("Compte creer")
-    }).catch((err) => this.notificationService.showErrorNotification(err));
+    // Check if the email already exists
+    return this.db.list(pathRef, ref => ref.orderByChild("email").equalTo(supervisor.email))
+      .valueChanges()
+      .pipe(
+        take(1),
+        tap( (users) => {
+          if (users.length > 0) {
+            this.notificationService.showErrorNotification("Email already exists");
+          } else {
+            const pushRef = this.db.list(pathRef).push(supervisor)
+            pushRef.update({
+              code : this.codeGen(supervisor),
+              id: pushRef.key
+            }).then(() => {
+              this.notificationService.showSuccessNotification("Compte creer")
+            }).catch((err) => this.notificationService.showErrorNotification(err));
+          }
+        })
+      )
   }
 
   login(loginInfo: LoginModel){

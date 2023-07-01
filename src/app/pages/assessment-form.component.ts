@@ -393,8 +393,7 @@ export class AssessmentFormComponent {
     this.translationService.getLanguage() === "en" ?'Unsatisfactory: performance that does not meet achieved standards' : 'Insatisfaisant : performances qui ne répondent pas aux normes atteintes']
 
   studentInfoForm = this.fb.group({
-    permanentCode: ['', [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/
-    )]],
+    permanentCode: ['', [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
     firstname: ['', Validators.required],
     lastname: ['', Validators.required, ],
   });
@@ -432,7 +431,7 @@ export class AssessmentFormComponent {
 
   supervisorForm = this.fb.group({
     id: ['To determine'],
-    code : [this.userInfo.state ? this.userInfo.value.code : ''],
+    code : [this.userInfo.state ? this.userInfo.value.code : '', [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
     email : [this.userInfo.state ? this.userInfo.value.email : ''],
     firstname : [this.userInfo.state ? this.userInfo.value.firstname : ''],
     lastname : [this.userInfo.state ? this.userInfo.value.lastname : ''],
