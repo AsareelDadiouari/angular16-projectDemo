@@ -1,7 +1,10 @@
 import {Component, computed, effect, inject, LOCALE_ID} from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {LocalizationService} from "../services/localization.service";
 import {BackendService} from "../services/backend.service";
+import {Intern} from "../models/intern";
+import {filter, find, map, startWith, switchMap, take, tap} from 'rxjs';
+import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-assessment-form',
@@ -17,6 +20,11 @@ import {BackendService} from "../services/backend.service";
             <mat-form-field appearance="outline">
               <mat-label i18n for="permanentCode">Permanent Code : </mat-label>
               <input type="text" id="permanentCode" formControlName="permanentCode" matInput>
+              <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let student of students()" [value]="student.code">
+                  {{student.code}}
+                </mat-option>
+              </mat-autocomplete>
             </mat-form-field>
           </div>
 
@@ -378,10 +386,10 @@ import {BackendService} from "../services/backend.service";
   providers: [{ provide: LOCALE_ID, useValue: 'en-US' }]
 })
 export class AssessmentFormComponent {
-  fb = inject(FormBuilder)
-  translationService = inject(LocalizationService)
+  fb = inject(FormBuilder);
+  translationService = inject(LocalizationService);
   backendService = inject(BackendService);
-  userInfo = this.backendService.getAuthenticatedUser()
+  userInfo = this.backendService.getAuthenticatedUser();
 
   constructor() {
     effect(() => {
@@ -397,15 +405,19 @@ export class AssessmentFormComponent {
     this.translationService.getLanguage() === "en" ?'Satisfactory : yields that match achieved standards' : 'Satisfaisant : Des rendements satisfaisants qui correspondent aux normes atteintes',
     this.translationService.getLanguage() === "en" ?'Unsatisfactory: performance that does not meet achieved standards' : 'Insatisfaisant : performances qui ne répondent pas aux normes atteintes']
 
+  internshipRatingNoteForm = this.fb.group({
+    internshipRatingNote: ['To determine'],
+  });
+
   studentInfoForm = this.fb.group({
     permanentCode: ['', [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
     firstname: ['', Validators.required],
     lastname: ['', Validators.required, ],
   });
 
-  internshipRatingNoteForm = this.fb.group({
-    internshipRatingNote: ['To determine'],
-  });
+  students = toSignal(this.studentInfoForm.valueChanges.pipe(
+    switchMap((value) => this.backendService.getStudents(<string>value.permanentCode?.toUpperCase())/*this.filterStudents(value)*/)
+  ))
 
   traineeSkillEvalForm = this.fb.group({
     autonomy : ['To determine'],
@@ -456,5 +468,20 @@ export class AssessmentFormComponent {
 
     console.log(this.supervisorForm.getRawValue())
 
+  }
+
+  //----------------------------------------------------------------------------
+
+  private filterStudents(value: string | Partial<{ permanentCode: string | null; firstname: string | null; lastname: string | null; }>) {
+    let filterValue: string | undefined = undefined
+
+    if (typeof value === "string") {
+      filterValue = value.toLowerCase();
+    }
+    console.log(value)
+
+    return this.backendService.getStudents(<string>filterValue).pipe(
+      tap(students => console.log(students)),
+    );
   }
 }

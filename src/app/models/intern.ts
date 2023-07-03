@@ -1,5 +1,5 @@
 export type Intern = {
-  id: string
+  id?: string
   firstname: string
   lastname: string
   code: string

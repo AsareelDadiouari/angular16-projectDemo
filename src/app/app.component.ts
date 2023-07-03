@@ -1,7 +1,9 @@
 import {Component, effect, inject, OnInit, signal} from '@angular/core';
 import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
-import localeEn from '@angular/common/locales/en'; // Import locale data for English
+import localeEn from '@angular/common/locales/en';
+import {BackendService} from "./services/backend.service";
+import {NotificationService} from "./services/notification.service"; // Import locale data for English
 registerLocaleData(localeEn, 'en');
 
 @Component({
@@ -35,6 +37,8 @@ export class AppComponent implements OnInit{
     { code: 'fr', label: 'Français' }
   ];
   loading = false;
+
+
   ngOnInit(): void {
     this.loading = true;
     setTimeout(() => {

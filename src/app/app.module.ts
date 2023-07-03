@@ -34,6 +34,7 @@ import {environment} from "../environments/environment";
 import {AngularFirestoreModule} from "@angular/fire/compat/firestore";
 import {AngularFireStorageModule} from "@angular/fire/compat/storage";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
 
 @NgModule({
   declarations: [
@@ -73,7 +74,8 @@ import {MatSnackBarModule} from "@angular/material/snack-bar";
     AngularFireModule.initializeApp(environment.firebaseConfig),
     AngularFireDatabaseModule,
     AngularFirestoreModule,
-    AngularFireStorageModule
+    AngularFireStorageModule,
+    MatAutocompleteModule
   ],
   providers: [ { provide: LOCALE_ID, useValue: 'en' } ],
   bootstrap: [AppComponent]

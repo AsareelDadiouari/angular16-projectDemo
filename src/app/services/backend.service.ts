@@ -11,8 +11,10 @@ import {NotificationService} from "./notification.service";
 import {LoginModel} from "../models/login.model";
 import * as assert from "assert";
 import {Router} from "@angular/router";
-import {BehaviorSubject, Observable, take, tap} from "rxjs";
+import {BehaviorSubject, flatMap, forkJoin, map, mergeMap, Observable, switchMap, take, tap} from "rxjs";
 import {toSignal} from "@angular/core/rxjs-interop";
+import {HttpClient} from "@angular/common/http";
+import {Intern} from "../models/intern";
 
 
 @Injectable({
@@ -24,6 +26,7 @@ export class BackendService {
   db = inject(AngularFireDatabase)
   notificationService = inject(NotificationService);
   router = inject(Router);
+  http = inject(HttpClient);
 
   authenticated= signal({
     value : this.getUserFromLocal()[0],
@@ -38,7 +41,7 @@ export class BackendService {
     const pathRef = supervisor instanceof Professor ? "supervisor/professors" : "supervisor/headmaster";
 
     // Check if the email already exists
-    return this.db.list(pathRef, ref => ref.orderByChild("email").equalTo(supervisor.email))
+    return this.db.list<Supervisor>(pathRef, ref => ref.orderByChild("email").equalTo(supervisor.email))
       .valueChanges()
       .pipe(
         take(1),
@@ -58,6 +61,24 @@ export class BackendService {
       )
   }
 
+  createStudent(student: Intern){
+    return this.db.list<Intern>("intern", ref => ref.orderByChild("code").equalTo(student.code)).valueChanges().pipe(
+      tap((students: Intern[]) => {
+        if (students.length > 0) {
+          this.notificationService.showErrorNotification("Code permanent existe deja");
+        } else {
+          const pushRef = this.db.list("intern").push(student)
+          pushRef.update({
+            code : this.codeGen(student),
+            id: pushRef.key
+          }).then(() => {
+            //this.notificationService.showSuccessNotification("Etudiant Ajouter")
+          }).catch((err) => this.notificationService.showErrorNotification(err));
+        }
+      })
+    );
+  }
+
   login(loginInfo: LoginModel){
     this.db.database.ref().once('value').then(snapshot => {
       const users = snapshot.val();
@@ -73,6 +94,7 @@ export class BackendService {
           this.authenticated.set({value: headmasterArray[index], state: true});
           localStorage.setItem('auth', JSON.stringify({user: headmasterArray[index], role: "Headmaster"}));
           this.notificationService.showSuccessNotification("Connexion Reussi");
+          return;
         }
       }
 
@@ -87,9 +109,10 @@ export class BackendService {
           this.authenticated.set({value: professorArray[index], state: true});
           localStorage.setItem('auth', JSON.stringify({user: professorArray[index], role: "Professor"}));
           this.notificationService.showSuccessNotification("Connexion Reussi");
+          return;
         }
       }
-
+      this.notificationService.showErrorNotification("Email ou mot de passe incorrect");
     }).catch((err) => this.notificationService.showErrorNotification(err));
   }
 
@@ -103,6 +126,15 @@ export class BackendService {
     //this.router.navigate(['/']).then(() => this.notificationService.showSuccessNotification("Deconnexion Reussi"))
   }
 
+  getStudents(code: string): Observable<Intern[]> {
+    return this.db.list<Intern>('intern', (ref) => {
+      return ref.orderByChild("code")
+        .startAt(code)
+        .endAt(code + '\uf8ff')
+        .limitToFirst(5)
+    }).valueChanges().pipe(tap(val => console.log(val)))
+  }
+
   getAuthenticatedUser(){
     return computed(() => {
       const data: any  = this.authenticated().value
@@ -113,16 +145,40 @@ export class BackendService {
     })
   }
 
+  // Use with caution, kind of create aun unexpected large number of students
+  populateStudents(number: number){
+    const url = "https://randomuser.me/api/"
+    const observables = []
+
+    for (let i = 0; i < number; i++){
+      observables.push(this.http.get<Intern>(url).pipe(
+        switchMap((data : any) => this.createStudent({
+          firstname : data.results[0].name.first,
+          lastname  :  data.results[0].name.last,
+          code : this.codeGen({
+            lastname : data.results[0].name.last,
+            firstname : data.results[0].name.first,
+          })
+        } as Intern)),
+        tap((data) => {
+        })
+      ))
+    }
+
+    return forkJoin(observables).pipe(mergeMap(results => results));
+  }
 
   //-------------------------------------------------------------------------------
 
-  private codeGen(supervisor: Supervisor): string{
-    return supervisor.firstname.substring(0, 2).toUpperCase()
-      + supervisor.lastname.substring(0, 2).toUpperCase()
-      + this.genRand(1, 31).toString().padStart(2, '0')
-      + this.genRand(1, 12).toString().padStart(2, '0')
-      + this.genRand(0, 99).toString().padStart(2, '0')
-      + this.genRand(0, 99).toString().padStart(2, '0');
+  private codeGen(user: Supervisor | Partial<Intern>): string{
+    return (
+      (user?.firstname?.substring(0, 2)?.toUpperCase() || '') +
+      (user?.lastname?.substring(0, 2)?.toUpperCase() || '') +
+      this.genRand(1, 31).toString().padStart(2, '0') +
+      this.genRand(1, 12).toString().padStart(2, '0') +
+      this.genRand(0, 99).toString().padStart(2, '0') +
+      this.genRand(0, 99).toString().padStart(2, '0')
+    );
   }
 
   private genRand(min: number, max: number): number {
