@@ -1,4 +1,4 @@
-import {Component, effect, inject, LOCALE_ID} from '@angular/core';
+import {Component, computed, effect, inject, LOCALE_ID} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import {LocalizationService} from "../services/localization.service";
 import {BackendService} from "../services/backend.service";
@@ -381,10 +381,15 @@ export class AssessmentFormComponent {
   fb = inject(FormBuilder)
   translationService = inject(LocalizationService)
   backendService = inject(BackendService);
-  userInfo = this.backendService.getAuthenticatedUser();
+  userInfo = this.backendService.getAuthenticatedUser()
 
   constructor() {
-    effect(() => {})
+    effect(() => {
+      this.supervisorForm.get("code")?.setValue(this.userInfo().state ? this.userInfo().value.code : '');
+      this.supervisorForm.get("email")?.setValue(this.userInfo().state ? this.userInfo().value.email : '');
+      this.supervisorForm.get("firstname")?.setValue(this.userInfo().state ? this.userInfo().value.firstname : '');
+      this.supervisorForm.get("lastname")?.setValue(this.userInfo().state ? this.userInfo().value.lastname : '');
+    })
   }
 
   selections = [this.translationService.getLanguage() === "en" ? 'Execellent : Excellent performance that meets the standards achieved' : "Excellent : Excellentes performances qui répondent aux normes atteintes",
@@ -431,10 +436,10 @@ export class AssessmentFormComponent {
 
   supervisorForm = this.fb.group({
     id: ['To determine'],
-    code : [this.userInfo.state ? this.userInfo.value.code : '', [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
-    email : [this.userInfo.state ? this.userInfo.value.email : ''],
-    firstname : [this.userInfo.state ? this.userInfo.value.firstname : ''],
-    lastname : [this.userInfo.state ? this.userInfo.value.lastname : ''],
+    code : ['', [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
+    email : [''],
+    firstname : [''],
+    lastname : [''],
     studentCode: [''],
   });
 

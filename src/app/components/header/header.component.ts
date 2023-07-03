@@ -1,4 +1,4 @@
-import {Component, effect, inject, Input, OnInit} from '@angular/core';
+import {Component, computed, effect, inject, Input, OnInit} from '@angular/core';
 import {MatDrawer} from "@angular/material/sidenav";
 import {MatButtonToggleChange} from "@angular/material/button-toggle";
 import {LocalizationService} from "../../services/localization.service";
@@ -26,14 +26,14 @@ import {Supervisor} from "../../models/supervisor.model";
       />
       <span i18n="Web app Name">Assessement Tool</span>
       <button routerLink="/evaluation" style="margin-left: 15px" i18n color="primary" mat-raised-button>File an evaluation</button>
-      <button *ngIf="backendService.getAuthenticatedUser().state" routerLink="/codeGen" style="margin-left: 15px" color="primary" mat-raised-button>Generate a code for a student</button>
+      <button *ngIf="this.backendService.authenticated().state" routerLink="/codeGen" style="margin-left: 15px" color="primary" mat-raised-button>Generate a code for a student</button>
 
       <div class="spacer"></div>
 
       <button *ngIf="!this.backendService.authenticated().state; else Name" type="button" mat-stroked-button
               color="white" (click)="handleAuthButton()" class="auth-button">Authentication
       </button>
-      <ng-template style="margin-right: 100px" #Name>Bonjour {{name}}</ng-template>
+      <ng-template style="margin-right: 100px" #Name>Bonjour {{_name}}</ng-template>
 
       <button *ngIf="this.backendService.authenticated().state"
               (click)="backendService.logout()"
@@ -111,12 +111,12 @@ export class HeaderComponent implements OnInit{
   backendService = inject(BackendService)
   dialog = inject(MatDialog);
   router = inject(Router);
-  name!: string
+  _name! : string
+  userInfo = this.backendService.getAuthenticatedUser()
 
   constructor() {
     effect(() => {
-      const user = this.backendService.getAuthenticatedUser();
-      this.name = user.value.firstname + " " + user.value.lastname?.toUpperCase();
+      this._name = this.userInfo().value?.firstname + " " + this.userInfo().value?.lastname?.toUpperCase()
     })
   }
 

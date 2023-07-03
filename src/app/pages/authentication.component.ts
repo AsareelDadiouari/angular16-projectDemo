@@ -156,6 +156,7 @@ export class AuthenticationComponent {
         password: supervisorData.password || '',
       };
       this.backendService.createSupervisor(new Professor({... supervisor}))
+        .pipe(takeUntilDestroyed())
         .subscribe(() => {this.tabGroup.selectedIndex = 0});
     } else {
       this.backendService.createSupervisor({

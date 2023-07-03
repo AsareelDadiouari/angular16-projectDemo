@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import {inject, Injectable, signal, Signal} from "@angular/core";
+import {computed, inject, Injectable, signal, Signal, WritableSignal} from "@angular/core";
 import {environment} from "../../environments/environment";
 import {AngularFireDatabase} from "@angular/fire/compat/database";
 import {Supervisor} from "../models/supervisor.model";
@@ -11,7 +11,8 @@ import {NotificationService} from "./notification.service";
 import {LoginModel} from "../models/login.model";
 import * as assert from "assert";
 import {Router} from "@angular/router";
-import {take, tap} from "rxjs";
+import {BehaviorSubject, Observable, take, tap} from "rxjs";
+import {toSignal} from "@angular/core/rxjs-interop";
 
 
 @Injectable({
@@ -23,7 +24,11 @@ export class BackendService {
   db = inject(AngularFireDatabase)
   notificationService = inject(NotificationService);
   router = inject(Router);
-  authenticated = signal({value : this.getUserFromLocal()[0] , state: this.getUserFromLocal()[1]});
+
+  authenticated= signal({
+    value : this.getUserFromLocal()[0],
+    state : this.getUserFromLocal()[1]
+  })
 
   constructor() {
     //console.log(this.isAuthenticated());
@@ -85,24 +90,27 @@ export class BackendService {
         }
       }
 
-    }).catch((err) => this.notificationService.showErrorNotification("hum thats weird " + err));
+    }).catch((err) => this.notificationService.showErrorNotification(err));
   }
 
   logout(){
     this.authenticated.update((value) => {
       value.state = false;
       return value;
-    })
-    localStorage.removeItem('auth')
-    this.router.navigate(['/']).then(() => this.notificationService.showSuccessNotification("Deconnexion Reussi"))
+    });
+    this.notificationService.showSuccessNotification("Deconnexion Reussi");
+    localStorage.removeItem('auth');
+    //this.router.navigate(['/']).then(() => this.notificationService.showSuccessNotification("Deconnexion Reussi"))
   }
 
   getAuthenticatedUser(){
-    const data: any  = this.authenticated().value
+    return computed(() => {
+      const data: any  = this.authenticated().value
       return {
-        value: data.user === undefined ? data as Professor | Headmaster | Partial<Supervisor> : data.user,
+        value: data?.user === undefined ? data as Professor | Headmaster | Partial<Supervisor> : data.user,
         state: this.authenticated().state
       }
+    })
   }
 
 
@@ -131,19 +139,17 @@ export class BackendService {
     }
   }
 
-  private getUserFromLocal(): [Professor | Headmaster | Partial<Supervisor>, boolean]{
+  private getUserFromLocal(){
     const authData = localStorage.getItem('auth');
 
     if (authData) {
       try {
         const user = JSON.parse(authData);
-        return user.role === "Professor" ? [user as Professor, true] : [user as Headmaster, true];
+        return user.role === "Professor" ? [user as Professor, true] : [user as Headmaster, true]
       } catch (error) {
         console.error('Error parsing user data from local storage:', error);
       }
     }
-
     return [{}, false];
   }
-
 }

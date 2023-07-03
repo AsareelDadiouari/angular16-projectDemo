@@ -1,4 +1,5 @@
-import {Component, LOCALE_ID, OnInit, signal} from "@angular/core";
+import {Component, computed, LOCALE_ID, OnInit, signal} from "@angular/core";
+import {toSignal} from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-landing-page',
@@ -19,6 +20,9 @@ import {Component, LOCALE_ID, OnInit, signal} from "@angular/core";
 })
 export class HomeComponent implements OnInit{
   image = signal<string | ArrayBuffer | null>(null);
+  test = computed(() => {
+    return 1;
+  });
 
   ngOnInit(): void {
   }
