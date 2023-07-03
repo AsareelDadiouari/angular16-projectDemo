@@ -69,6 +69,6 @@ constructor()
 toSignal() can be used to convert an observable to a signal.
 ```typescript
 students = toSignal(this.studentInfoForm.valueChanges.pipe(
-  switchMap((value) => this.backendService.getStudents(<string>value.permanentCode?.toUpperCase())/*this.filterStudents(value)*/)
+  switchMap((value) => this.backendService.getStudents(<string>value.permanentCode?.toUpperCase()))
 ))
 ```
