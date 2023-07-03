@@ -132,7 +132,7 @@ export class BackendService {
         .startAt(code)
         .endAt(code + '\uf8ff')
         .limitToFirst(5)
-    }).valueChanges().pipe(tap(val => console.log(val)))
+    }).valueChanges()
   }
 
   getAuthenticatedUser(){

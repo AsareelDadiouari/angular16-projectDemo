@@ -11,27 +11,59 @@ A signal is a wrapper around a value that can notify interested consumers when t
 Writable signals provide an API for updating their values directly. You create writable signals by calling the signal function with the signal's initial value:
 
 ```typescript
-const count = signal(0);
-console.log('The count is: ' + count());
+getUserFromLocal()
+{
+  const authData = localStorage.getItem('auth');
+
+  if (authData) {
+    try {
+      const user = JSON.parse(authData);
+      return user.role === "Professor" ? [user as Professor, true] : [user as Headmaster, true]
+    } catch (error) {
+      console.error('Error parsing user data from local storage:', error);
+    }
+  }
+  return [{}, false];
+}
+
+authenticated = signal({
+  value: this.getUserFromLocal()[0],
+  state: this.getUserFromLocal()[1]
+})
 ```
 To change the value of a writable signal, you can either .set() it directly:
 ```typescript
-count.set(3);
+this.authenticated.set({value: headmasterArray[index], state: true});
+this.authenticated.set({value: professorArray[index], state: true});
 ```
 ### Computed signals
 A computed signal derives its value from other signals. Define one using computed and specifying a derivation function:
 
 ```typescript
-const count: WritableSignal<number> = signal(0);
-const doubleCount: Signal<number> = computed(() => count() * 2);
+getAuthenticatedUser()
+{
+  return computed(() => {
+    const data: any  = this.authenticated().value
+    return {
+      value: data?.user === undefined ? data as Professor | Headmaster | Partial<Supervisor> : data.user,
+      state: this.authenticated().state
+    }
+  })
+}
 ```
 ### Effects
 Signals are useful because they can notify interested consumers when they change. An effect is an operation that runs whenever one or more signal values change. You can create an effect with the effect function:
 
 ```typescript
-effect(() => {
-console.log(`The current count is: ${count()}`);
-});
+constructor() 
+{
+  effect(() => {
+    this.supervisorForm.get("code")?.setValue(this.userInfo().state ? this.userInfo().value.code : '');
+    this.supervisorForm.get("email")?.setValue(this.userInfo().state ? this.userInfo().value.email : '');
+    this.supervisorForm.get("firstname")?.setValue(this.userInfo().state ? this.userInfo().value.firstname : '');
+    this.supervisorForm.get("lastname")?.setValue(this.userInfo().state ? this.userInfo().value.lastname : '');
+  })
+}
 ```
 ### Conversions
 toSignal() can be used to convert an observable to a signal.

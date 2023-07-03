@@ -1,10 +1,12 @@
-import {Component, computed, effect, inject, LOCALE_ID} from '@angular/core';
+import {Component, computed, effect, inject, LOCALE_ID, ViewChild} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {LocalizationService} from "../services/localization.service";
 import {BackendService} from "../services/backend.service";
 import {Intern} from "../models/intern";
-import {filter, find, map, startWith, switchMap, take, tap} from 'rxjs';
+import {concatMap, filter, find, forkJoin, map, startWith, switchMap, take, tap} from 'rxjs';
 import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
+import {MatOption} from "@angular/material/core";
+import {MatAutocomplete} from "@angular/material/autocomplete";
 
 @Component({
   selector: 'app-assessment-form',
@@ -19,8 +21,8 @@ import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
           <div class="form-group">
             <mat-form-field appearance="outline">
               <mat-label i18n for="permanentCode">Permanent Code : </mat-label>
-              <input type="text" id="permanentCode" formControlName="permanentCode" matInput>
-              <mat-autocomplete #auto="matAutocomplete">
+              <input type="text" id="permanentCode" formControlName="permanentCode" [matAutocomplete]="auto" matInput>
+              <mat-autocomplete #matAutocompleteStudentCode (optionSelected)="onOptionSelected($event)" #auto="matAutocomplete">
                 <mat-option *ngFor="let student of students()" [value]="student.code">
                   {{student.code}}
                 </mat-option>
@@ -390,6 +392,7 @@ export class AssessmentFormComponent {
   translationService = inject(LocalizationService);
   backendService = inject(BackendService);
   userInfo = this.backendService.getAuthenticatedUser();
+  @ViewChild("matAutocompleteStudentCode") matAutocompleteStudentCode!: MatAutocomplete
 
   constructor() {
     effect(() => {
@@ -415,8 +418,18 @@ export class AssessmentFormComponent {
     lastname: ['', Validators.required, ],
   });
 
-  students = toSignal(this.studentInfoForm.valueChanges.pipe(
-    switchMap((value) => this.backendService.getStudents(<string>value.permanentCode?.toUpperCase())/*this.filterStudents(value)*/)
+  students = toSignal<Intern[]>(this.studentInfoForm.controls['permanentCode'].valueChanges.pipe(
+    switchMap((value) => this.backendService.getStudents(value!.toUpperCase())),
+    tap((value) => {
+      this.matAutocompleteStudentCode.optionSelected.subscribe(() => {
+          const student = value.find(val => val.code === this.studentInfoForm.controls['permanentCode'].value);
+          if (student){
+            this.studentInfoForm.get('firstname')?.setValue(student.firstname)
+            this.studentInfoForm.get('lastname')?.setValue(student.lastname)
+          }
+        }
+      )
+    })
   ))
 
   traineeSkillEvalForm = this.fb.group({
@@ -470,8 +483,7 @@ export class AssessmentFormComponent {
 
   }
 
-  //----------------------------------------------------------------------------
-
+//----------------------------------------------------------------------------
   private filterStudents(value: string | Partial<{ permanentCode: string | null; firstname: string | null; lastname: string | null; }>) {
     let filterValue: string | undefined = undefined
 
@@ -483,5 +495,8 @@ export class AssessmentFormComponent {
     return this.backendService.getStudents(<string>filterValue).pipe(
       tap(students => console.log(students)),
     );
+  }
+
+  onOptionSelected(data: any) {
   }
 }

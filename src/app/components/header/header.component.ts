@@ -121,7 +121,6 @@ export class HeaderComponent implements OnInit{
   }
 
   ngOnInit() {
-    console.log(this.backendService.authenticated().state)
   }
 
   switchLanguage(buttonToggle : MatButtonToggleChange): void {
