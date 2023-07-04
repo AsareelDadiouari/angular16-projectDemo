@@ -14,7 +14,7 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
   template: `
     <mat-tab-group #Tab>
       <mat-tab class="login" [label]="localizationService.getLanguage() === 'en' ? 'Login' : 'Connexion'">
-        <form class="login-form" [formGroup]="loginForm" (submit)="submitLoginForm()">
+        <form class="login-form" [formGroup]="loginForm" (submit)="localLogin()">
           <div class="form-group">
             <mat-form-field appearance="outline">
               <mat-label>Email</mat-label>
@@ -40,7 +40,7 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
       </mat-tab>
       <mat-tab class="signUp" [label]="localizationService.getLanguage() === 'en' ? 'SignUp' : 'Inscription'">
-        <form class="signup-form" [formGroup]="signUpForm" (submit)="submitSignUpForm()">
+        <form class="signup-form" [formGroup]="signUpForm" (submit)="signUp()">
           <div class="form-group">
             <mat-form-field appearance="outline">
               <mat-label>Email</mat-label>
@@ -140,11 +140,14 @@ export class AuthenticationComponent {
     role: ['', Validators.required],
   });
 
-  submitLoginForm() {
-    this.backendService.login(this.loginForm.getRawValue() as LoginModel);
+  localLogin() {
+    this.backendService.firebaseLogin(this.loginForm.getRawValue() as LoginModel).subscribe((value => {
+      localStorage.setItem("refeshToken", JSON.stringify(value.user?.refreshToken))
+    }));
+    //this.backendService.localStorageLogin(this.loginForm.getRawValue() as LoginModel);
   }
 
-  submitSignUpForm() {
+  signUp() {
     const supervisorData = this.signUpForm.getRawValue();
 
     if (supervisorData.role?.includes("Professeur")  || supervisorData.role?.includes("Professor") ){
@@ -156,7 +159,6 @@ export class AuthenticationComponent {
         password: supervisorData.password || '',
       };
       this.backendService.createSupervisor(new Professor({... supervisor}))
-        .pipe(takeUntilDestroyed())
         .subscribe(() => {this.tabGroup.selectedIndex = 0});
     } else {
       this.backendService.createSupervisor({
@@ -166,7 +168,6 @@ export class AuthenticationComponent {
         lastname: supervisorData.lastname || '',
         password: supervisorData.password
       } as Headmaster)
-        .pipe(takeUntilDestroyed())
         .subscribe(() => {this.tabGroup.selectedIndex = 0});
     }
   }

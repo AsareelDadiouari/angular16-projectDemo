@@ -25,8 +25,12 @@ import {Supervisor} from "../../models/supervisor.model";
         src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg=="
       />
       <span i18n="Web app Name">Assessement Tool</span>
-      <button routerLink="/evaluation" style="margin-left: 15px" i18n color="primary" mat-raised-button>File an evaluation</button>
-      <button *ngIf="this.backendService.authenticated().state" routerLink="/codeGen" style="margin-left: 15px" color="primary" mat-raised-button>Generate a code for a student</button>
+      <button routerLink="/evaluation" style="margin-left: 15px" i18n color="primary" mat-raised-button>File an
+        evaluation
+      </button>
+      <button *ngIf="this.backendService.authenticated().state" routerLink="/codeGen" style="margin-left: 15px"
+              color="primary" mat-raised-button>Generate a code for a student
+      </button>
 
       <div class="spacer"></div>
 
@@ -36,12 +40,13 @@ import {Supervisor} from "../../models/supervisor.model";
       <ng-template style="margin-right: 100px" #Name>Bonjour {{_name}}</ng-template>
 
       <button *ngIf="this.backendService.authenticated().state"
-              (click)="backendService.logout()"
+              (click)="logout()"
               type="button"
               mat-stroked-button
               class="auth-button"
               color="white"
-      >Logout</button>
+      >Logout
+      </button>
 
       <mat-button-toggle-group (change)="switchLanguage($event)" name="fontStyle" aria-label="Font Style">
         <mat-button-toggle value="fr">FR</mat-button-toggle>
@@ -138,5 +143,9 @@ export class HeaderComponent implements OnInit{
       this.router.navigate(['/auth']).then(() => alert("Failed to open dialog"))
   }
 
-  protected readonly localStorage = localStorage;
+  logout(){
+    this.backendService.firebaseLogOut().subscribe(() => {
+      this.backendService.localStorageLogout();
+    })
+  }
 }

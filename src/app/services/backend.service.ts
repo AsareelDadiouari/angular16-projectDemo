@@ -11,10 +11,11 @@ import {NotificationService} from "./notification.service";
 import {LoginModel} from "../models/login.model";
 import * as assert from "assert";
 import {Router} from "@angular/router";
-import {BehaviorSubject, flatMap, forkJoin, map, mergeMap, Observable, switchMap, take, tap} from "rxjs";
+import {BehaviorSubject, flatMap, forkJoin, from, map, mergeMap, Observable, switchMap, take, tap} from "rxjs";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {HttpClient} from "@angular/common/http";
 import {Intern} from "../models/intern";
+import {AngularFireAuth} from "@angular/fire/compat/auth";
 
 
 @Injectable({
@@ -24,6 +25,7 @@ export class BackendService {
   public app = initializeApp(environment.firebaseConfig);
   public analytics = getAnalytics(this.app);
   db = inject(AngularFireDatabase)
+  fbAuth = inject(AngularFireAuth)
   notificationService = inject(NotificationService);
   router = inject(Router);
   http = inject(HttpClient);
@@ -54,7 +56,9 @@ export class BackendService {
               code : this.codeGen(supervisor),
               id: pushRef.key
             }).then(() => {
-              this.notificationService.showSuccessNotification("Compte creer")
+              this.fbAuth.createUserWithEmailAndPassword(supervisor.email, <string>supervisor.password).then(r => {
+                this.notificationService.showSuccessNotification("Compte creer")
+              })
             }).catch((err) => this.notificationService.showErrorNotification(err));
           }
         })
@@ -79,7 +83,7 @@ export class BackendService {
     );
   }
 
-  login(loginInfo: LoginModel){
+  localStorageLogin(loginInfo: LoginModel){
     this.db.database.ref().once('value').then(snapshot => {
       const users = snapshot.val();
 
@@ -116,7 +120,13 @@ export class BackendService {
     }).catch((err) => this.notificationService.showErrorNotification(err));
   }
 
-  logout(){
+  firebaseLogin(loginInfo: LoginModel){
+    return from(this.fbAuth.signInWithEmailAndPassword(loginInfo.email, loginInfo.password)).pipe(
+      tap(() =>  this.localStorageLogin(loginInfo))
+    );
+  }
+
+  localStorageLogout(){
     this.authenticated.update((value) => {
       value.state = false;
       return value;
@@ -124,6 +134,10 @@ export class BackendService {
     this.notificationService.showSuccessNotification("Deconnexion Reussi");
     localStorage.removeItem('auth');
     //this.router.navigate(['/']).then(() => this.notificationService.showSuccessNotification("Deconnexion Reussi"))
+  }
+
+  firebaseLogOut(){
+    return from(this.fbAuth.signOut())
   }
 
   getStudents(code: string): Observable<Intern[]> {
@@ -145,7 +159,7 @@ export class BackendService {
     })
   }
 
-  // Use with caution, kind of create aun unexpected large number of students
+  // Use with caution, kind of create an unexpected large number of students
   populateStudents(number: number){
     const url = "https://randomuser.me/api/"
     const observables = []

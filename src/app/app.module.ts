@@ -14,7 +14,7 @@ import {HomeComponent} from "./pages/home.component";
 import {AppRoutingModule} from "./app.routing.module";
 import {SafeHTMLPipe} from "./pipes/safeHTML.pipe";
 import {SafeBASE64Pipe} from "./pipes/safeBASE64.pipe";
-import {HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {MatButtonToggleModule} from "@angular/material/button-toggle";
 import { HeaderComponent } from './components/header/header.component';
 import {AssessmentFormComponent} from "./pages/assessment-form.component";
@@ -35,6 +35,7 @@ import {AngularFirestoreModule} from "@angular/fire/compat/firestore";
 import {AngularFireStorageModule} from "@angular/fire/compat/storage";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {AuthInterceptor} from "./auth.interceptor";
 
 @NgModule({
   declarations: [
@@ -75,9 +76,16 @@ import {MatAutocompleteModule} from "@angular/material/autocomplete";
     AngularFireDatabaseModule,
     AngularFirestoreModule,
     AngularFireStorageModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
   ],
-  providers: [ { provide: LOCALE_ID, useValue: 'en' } ],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'en' },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

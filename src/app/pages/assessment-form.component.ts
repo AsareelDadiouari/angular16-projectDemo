@@ -400,6 +400,10 @@ export class AssessmentFormComponent {
       this.supervisorForm.get("email")?.setValue(this.userInfo().state ? this.userInfo().value.email : '');
       this.supervisorForm.get("firstname")?.setValue(this.userInfo().state ? this.userInfo().value.firstname : '');
       this.supervisorForm.get("lastname")?.setValue(this.userInfo().state ? this.userInfo().value.lastname : '');
+
+      this.studentInfoForm.get("lastname")?.setValue(this.userInfo().state ? this.studentInfoForm.get("lastname")!.value : '');
+      this.studentInfoForm.get("firstname")?.setValue(this.userInfo().state ? this.studentInfoForm.get("firstname")!.value : '');
+      this.studentInfoForm.get("permanentCode")?.setValue(this.userInfo().state ? this.studentInfoForm.get("permanentCode")!.value : '');
     })
   }
 
@@ -417,9 +421,14 @@ export class AssessmentFormComponent {
     firstname: ['', Validators.required],
     lastname: ['', Validators.required, ],
   });
-
+ //
   students = toSignal<Intern[]>(this.studentInfoForm.controls['permanentCode'].valueChanges.pipe(
-    switchMap((value) => this.backendService.getStudents(value!.toUpperCase())),
+    switchMap((value) => {
+      if (this.backendService.authenticated().state)
+        return this.backendService.getStudents(value!.toUpperCase())
+
+      return []
+    }),
     tap((value) => {
       this.matAutocompleteStudentCode.optionSelected.subscribe(() => {
           const student = value.find(val => val.code === this.studentInfoForm.controls['permanentCode'].value);

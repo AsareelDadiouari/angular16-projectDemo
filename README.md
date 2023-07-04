@@ -55,6 +55,8 @@ getAuthenticatedUser()
 Signals are useful because they can notify interested consumers when they change. An effect is an operation that runs whenever one or more signal values change. You can create an effect with the effect function:
 
 ```typescript
+userInfo = this.backendService.getAuthenticatedUser();
+
 constructor() 
 {
   effect(() => {
@@ -64,6 +66,15 @@ constructor()
     this.supervisorForm.get("lastname")?.setValue(this.userInfo().state ? this.userInfo().value.lastname : '');
   })
 }
+
+supervisorForm = this.fb.group({
+  id: ['To determine'],
+  code : ['', [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
+  email : [''],
+  firstname : [''],
+  lastname : [''],
+  studentCode: [''],
+});
 ```
 ### Conversions
 toSignal() can be used to convert an observable to a signal.
