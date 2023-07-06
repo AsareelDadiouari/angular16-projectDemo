@@ -1,14 +1,15 @@
 import {Component, computed, effect, inject, Input, OnInit} from '@angular/core';
 import {MatDrawer} from "@angular/material/sidenav";
 import {MatButtonToggleChange} from "@angular/material/button-toggle";
-import {LocalizationService} from "../../services/localization.service";
+import {LocalizationService} from "../services/localization.service";
 import {MatDialog} from "@angular/material/dialog";
-import {AuthenticationDialogComponent} from "../dialogs/authentication-dialog.component";
+import {AuthenticationDialogComponent} from "./dialogs/authentication-dialog.component";
 import {Router} from "@angular/router";
-import {BackendService} from "../../services/backend.service";
-import {Professor} from "../../models/professor.model";
-import {Headmaster} from "../../models/headmaster.model";
-import {Supervisor} from "../../models/supervisor.model";
+import {BackendService} from "../services/backend.service";
+import {Professor} from "../models/professor.model";
+import {Headmaster} from "../models/headmaster.model";
+import {Supervisor} from "../models/supervisor.model";
+import {NotificationService} from "../services/notification.service";
 
 @Component({
   selector: 'app-header',
@@ -108,12 +109,16 @@ export class HeaderComponent implements OnInit{
   @Input()
   set drawer(matDrawer: MatDrawer) {
     this._drawer = matDrawer;
-    setTimeout(() => this._drawer.toggle(), 2000);
+    this.notificationService.toggleSpinner();
+    setTimeout(() => this._drawer.toggle().then(r => {
+      this.notificationService.toggleSpinner();
+    }), 2000);
   }
 
   protected _drawer!: MatDrawer;
   localizationService = inject(LocalizationService);
   backendService = inject(BackendService)
+  notificationService = inject(NotificationService)
   dialog = inject(MatDialog);
   router = inject(Router);
   _name! : string

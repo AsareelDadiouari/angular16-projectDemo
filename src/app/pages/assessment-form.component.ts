@@ -13,7 +13,7 @@ import {MatAutocomplete} from "@angular/material/autocomplete";
   template: `
 
     <h2>Assessment Form</h2>
-    <mat-stepper orientation="vertical" #stepper>
+    <mat-stepper class="assessment-form" orientation="vertical" #stepper>
       <mat-step [stepControl]="studentInfoForm">
         <form [formGroup]="studentInfoForm">
           <ng-template i18n matStepLabel><span>A.</span> Intern Info</ng-template>

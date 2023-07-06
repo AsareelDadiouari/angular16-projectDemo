@@ -3,6 +3,8 @@ import {NgModule} from "@angular/core";
 import {HomeComponent} from "./pages/home.component";
 import {AssessmentFormComponent} from "./pages/assessment-form.component";
 import {AuthenticationComponent} from "./pages/authentication.component";
+import {AssociateForm} from "./pages/associate-form";
+import {authenticationGuard} from "./app.guards";
 
 
 let routes: Routes = [
@@ -20,6 +22,12 @@ let routes: Routes = [
     path: 'auth',
     component: AuthenticationComponent,
     pathMatch: 'full',
+  },
+  {
+    path: 'codeGen',
+    component: AssociateForm,
+    pathMatch: 'full',
+    canActivate: [authenticationGuard]
   },
   {
     path: '**',

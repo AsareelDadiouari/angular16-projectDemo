@@ -18,12 +18,10 @@ registerLocaleData(localeEn, 'en');
       </mat-drawer>
 
       <app-header [drawer]="drawer"></app-header>
+      <spinner></spinner>
 
       <!-- Main content -->
       <div class="content" role="main">
-        <div *ngIf="loading" class="spinner-overlay">
-          <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
-        </div>
         <router-outlet></router-outlet>
       </div>
     </mat-drawer-container>
@@ -36,13 +34,9 @@ export class AppComponent implements OnInit{
     { code: 'en-US', label: 'English' },
     { code: 'fr', label: 'Français' }
   ];
-  loading = false;
+  notificationService = inject(NotificationService)
 
-
-  ngOnInit(): void {
-    this.loading = true;
-    setTimeout(() => {
-      this.loading = false;
-    }, 2000);
+  ngOnInit() {
+    console.log(this.notificationService.showSpinner())
   }
 }

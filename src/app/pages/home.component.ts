@@ -10,19 +10,27 @@ import {toSignal} from "@angular/core/rxjs-interop";
       }
     </style>
     <section class="main">
-
-
+      <h1 class="mat-display-4">Fiche d'evaluation Stagiaire</h1>
+      <img src="https://www.destinationuniversites.ca/wp-content/uploads/uqac.png" alt="image">
     </section>
   `,
   styles : [`
+    .main {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .main h1 {
+      font-size: 3rem;
+    }
   `],
   providers: [{ provide: LOCALE_ID, useValue: 'en-US' }]
 })
 export class HomeComponent implements OnInit{
   image = signal<string | ArrayBuffer | null>(null);
-  test = computed(() => {
-    return 1;
-  });
 
   ngOnInit(): void {
   }

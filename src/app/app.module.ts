@@ -16,7 +16,7 @@ import {SafeHTMLPipe} from "./pipes/safeHTML.pipe";
 import {SafeBASE64Pipe} from "./pipes/safeBASE64.pipe";
 import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
 import {MatButtonToggleModule} from "@angular/material/button-toggle";
-import { HeaderComponent } from './components/header/header.component';
+import { HeaderComponent } from './components/header.component';
 import {AssessmentFormComponent} from "./pages/assessment-form.component";
 import {ReactiveFormsModule} from "@angular/forms";
 import {MatFormFieldModule} from "@angular/material/form-field";
@@ -36,6 +36,9 @@ import {AngularFireStorageModule} from "@angular/fire/compat/storage";
 import {MatSnackBarModule} from "@angular/material/snack-bar";
 import {MatAutocompleteModule} from "@angular/material/autocomplete";
 import {AuthInterceptor} from "./auth.interceptor";
+import {SpinnerComponent} from "./components/spinner.component";
+import {AssociateForm} from "./pages/associate-form";
+import {MatCheckboxModule} from "@angular/material/checkbox";
 
 @NgModule({
   declarations: [
@@ -45,6 +48,8 @@ import {AuthInterceptor} from "./auth.interceptor";
     AssessmentFormComponent,
     AuthenticationComponent,
     AuthenticationDialogComponent,
+    SpinnerComponent,
+    AssociateForm,
     CastPipe,
     SafeHTMLPipe,
     SafeBASE64Pipe,
@@ -77,6 +82,7 @@ import {AuthInterceptor} from "./auth.interceptor";
     AngularFirestoreModule,
     AngularFireStorageModule,
     MatAutocompleteModule,
+    MatCheckboxModule,
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'en' },

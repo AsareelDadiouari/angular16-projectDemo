@@ -1,4 +1,4 @@
-import {inject, Injectable} from '@angular/core';
+import {inject, Injectable, signal} from '@angular/core';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Injectable({
@@ -6,6 +6,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 })
 export class NotificationService {
   snackBar = inject(MatSnackBar)
+  showSpinner = signal(false);
 
   showSuccessNotification(message: string, duration: number = 3000) {
     const config: MatSnackBarConfig = {
@@ -27,5 +28,9 @@ export class NotificationService {
     };
 
     this.snackBar.open(message, 'Close', config);
+  }
+
+  toggleSpinner(){
+    this.showSpinner.update(value => !value);
   }
 }
