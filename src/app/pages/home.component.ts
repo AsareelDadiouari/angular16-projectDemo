@@ -10,7 +10,9 @@ import {NotificationService} from "../services/notification.service";
   selector: 'app-landing-page',
   template: `
     <section class="main">
-      <div *ngIf="myAssessments()?.length === 0; else assessmentList">
+      <div *ngIf="myAssessments()?.length === 0
+       && assessmentsCompleted().length === 0
+       && assessmentsIncomplete().length === 0; else assessmentList">
         <h1 class="mat-display-4">Fiche d'evaluation Stagiaire</h1>
         <img src="https://www.destinationuniversites.ca/wp-content/uploads/uqac.png" alt="image">
       </div>
