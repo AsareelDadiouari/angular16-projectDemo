@@ -161,7 +161,10 @@ export class BackendService {
   }
 
   createAssessmentForm(assessment: AssessmentForm) {
-    return from(this.db.list("assessment").push(assessment))
+    const pushRef = this.db.list("assessment").push(assessment)
+    return from(pushRef.update({
+      id: pushRef.key
+    }))
   }
 
   getAssessments(){

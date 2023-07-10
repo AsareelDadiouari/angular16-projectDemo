@@ -12,7 +12,7 @@ export type AssessmentForm = {
   supervisor : Supervisor
 };
 
-interface TraineeSkillEval {
+export interface TraineeSkillEval {
   autonomy : string
   activeListeningSkills : string
   abilityToWork : string
@@ -24,7 +24,7 @@ interface TraineeSkillEval {
   additionalInfo : string
 }
 
-interface TraineeKnowledge {
+export interface TraineeKnowledge {
   writtenCommunicationSkills : string,
   fieldOfSpecialization : string
   assumeResponsibilities : string
@@ -34,7 +34,7 @@ interface TraineeKnowledge {
   additionalInfo : string
 }
 
-interface TraineeGlobalEval {
+export interface TraineeGlobalEval {
   rating : string,
   additionalInfo : string
 }

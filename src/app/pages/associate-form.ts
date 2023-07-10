@@ -1,4 +1,4 @@
-import {Component, inject, OnInit, ViewChild} from "@angular/core";
+import {Component, EventEmitter, inject, Input, OnInit, Output, ViewChild} from "@angular/core";
 import {FormBuilder, Validators} from "@angular/forms";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {Intern} from "../models/intern";
@@ -26,9 +26,18 @@ import {NotificationService} from "../services/notification.service";
             <input type="text" id="permanentCode" formControlName="permanentCode" [matAutocomplete]="auto" matInput>
             <mat-autocomplete #matAutocompleteStudentCode (optionSelected)="onOptionSelected($event)"
                               #auto="matAutocomplete">
-              <mat-option *ngFor="let student of students()" [value]="student.code">
-                {{student.code}}
-              </mat-option>
+
+              <div *ngIf="dataFromDialog; else normal">
+                <mat-option [value]="dataFromDialog.studentIntern.code">
+                  {{dataFromDialog.studentIntern.code}}
+                </mat-option>
+              </div>
+              <ng-template #normal>
+                <mat-option *ngFor="let student of students()" [value]="student.code">
+                  {{student.code}}
+                </mat-option>
+              </ng-template>
+
             </mat-autocomplete>
           </mat-form-field>
         </div>
@@ -49,7 +58,7 @@ import {NotificationService} from "../services/notification.service";
 
         <mat-form-field>
           <mat-label>Year</mat-label>
-          <mat-select  formControlName="internshipNumber" appearance="outline">
+          <mat-select formControlName="internshipNumber" appearance="outline">
             <mat-option #YearMatSelect *ngFor="let year of years" [value]="year">{{year}}</mat-option>
           </mat-select>
         </mat-form-field>
@@ -61,7 +70,9 @@ import {NotificationService} from "../services/notification.service";
           </mat-select>
         </mat-form-field>
       </form>
-      <button [disabled]="associateForm.invalid" class="submit-button" mat-raised-button color="primary" (click)="submitForm()">Submit</button>
+      <button [disabled]="associateForm.invalid" class="submit-button" mat-raised-button color="primary"
+              (click)="submitForm()">Submit
+      </button>
     </section>
 
   `,
@@ -106,6 +117,8 @@ export class AssociateForm implements OnInit{
   selectedStudent?: Intern;
   @ViewChild("matAutocompleteStudentCode") matAutocompleteStudentCode!: MatAutocomplete;
   @ViewChild("YearMatSelect") yearMatSelect!: MatOption;
+  @Input() dataFromDialog!: AssessmentForm | undefined;
+  @Output() submitClicked = new EventEmitter<any>();
 
   inputDisable = false;
 
@@ -162,29 +175,32 @@ export class AssociateForm implements OnInit{
   }
 
   submitForm() {
-    console.log(this.associateForm.getRawValue());
-    console.log(this.internCodeGeneration());
-
-    this.backendService.createAssessmentForm({
-      internshipGeneratedCode : this.internCodeGeneration(),
-      studentIntern : this.selectedStudent,
-      supervisor : (() => {
-        const userData = localStorage.getItem('auth');
-        if (userData) {
-          try {
-            const user = JSON.parse(userData);
-            return user.user
-          } catch (error) {
-            console.error('Error parsing user data from local storage:', error);
-          }
-        }
-      })()
-    }as AssessmentForm).subscribe(result => {
-      this.notificationService.showSuccessNotification("Etudiant associé avec succès");
-      this.associateForm.controls.permanentCode.reset();
-      this.associateForm.controls.internshipNumber.setValue("");
-      this.associateForm.controls.internshipTerm.setValue("");
-    })
+   if (this.dataFromDialog){
+     this.submitClicked.emit({
+       internshipGeneratedCode : this.internCodeGeneration(),
+     }as AssessmentForm);
+   }else {
+     this.backendService.createAssessmentForm({
+       internshipGeneratedCode : this.internCodeGeneration(),
+       studentIntern : this.selectedStudent,
+       supervisor : (() => {
+         const userData = localStorage.getItem('auth');
+         if (userData) {
+           try {
+             const user = JSON.parse(userData);
+             return user.user
+           } catch (error) {
+             console.error('Error parsing user data from local storage:', error);
+           }
+         }
+       })()
+     }as AssessmentForm).subscribe(result => {
+       this.notificationService.showSuccessNotification("Etudiant associé avec succès");
+       this.associateForm.controls.permanentCode.reset();
+       this.associateForm.controls.internshipNumber.setValue("");
+       this.associateForm.controls.internshipTerm.setValue("");
+     })
+   }
   }
 
   private internCodeGeneration(): string | undefined{

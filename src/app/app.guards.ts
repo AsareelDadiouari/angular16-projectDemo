@@ -21,7 +21,7 @@ function displayAuthModal(router: Router){
 
   const dialogRef = dialog.open(AuthenticationDialogComponent, {
     //height: '40%',
-    width: '300px'
+    width: '300px',
   });
   if (dialogRef === null)
     router.navigate(['/auth']).then(() => alert("Failed to open dialog"))

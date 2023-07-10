@@ -7,6 +7,10 @@ import {concatMap, filter, find, forkJoin, map, startWith, switchMap, take, tap}
 import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 import {MatOption} from "@angular/material/core";
 import {MatAutocomplete} from "@angular/material/autocomplete";
+import {AssessmentForm, TraineeGlobalEval, TraineeKnowledge, TraineeSkillEval} from "../models/assessmentForm.model";
+import {MatDialog} from "@angular/material/dialog";
+import {AssociateFormDialogComponent} from "../components/dialogs/associate-form-dialog.component";
+import {NotificationService} from "../services/notification.service";
 
 @Component({
   selector: 'app-assessment-form',
@@ -363,8 +367,7 @@ import {MatAutocomplete} from "@angular/material/autocomplete";
 
     .assessment-form {
       display: block;
-      min-width: 150px;
-      max-width: 500px;
+      min-width: 400px;
       width: 100%;
     }
 
@@ -391,7 +394,10 @@ export class AssessmentFormComponent {
   fb = inject(FormBuilder);
   translationService = inject(LocalizationService);
   backendService = inject(BackendService);
+  dialog = inject(MatDialog);
+  notificationService = inject(NotificationService);
   userInfo = this.backendService.getAuthenticatedUser();
+  selectedStudent!: Intern | undefined;
   @ViewChild("matAutocompleteStudentCode") matAutocompleteStudentCode!: MatAutocomplete
 
   constructor() {
@@ -413,7 +419,7 @@ export class AssessmentFormComponent {
     this.translationService.getLanguage() === "en" ?'Unsatisfactory: performance that does not meet achieved standards' : 'Insatisfaisant : performances qui ne répondent pas aux normes atteintes']
 
   internshipRatingNoteForm = this.fb.group({
-    internshipRatingNote: ['To determine'],
+    internshipRatingNote: [''],
   });
 
   studentInfoForm = this.fb.group({
@@ -430,10 +436,10 @@ export class AssessmentFormComponent {
     }),
     tap((value) => {
       this.matAutocompleteStudentCode.optionSelected.subscribe(() => {
-          const student = value.find(val => val.code === this.studentInfoForm.controls['permanentCode'].value);
-          if (student){
-            this.studentInfoForm.get('firstname')?.setValue(student.firstname)
-            this.studentInfoForm.get('lastname')?.setValue(student.lastname)
+          this.selectedStudent = value.find(val => val.code === this.studentInfoForm.controls['permanentCode'].value);
+          if (this.selectedStudent){
+            this.studentInfoForm.get('firstname')?.setValue(this.selectedStudent.firstname)
+            this.studentInfoForm.get('lastname')?.setValue(this.selectedStudent.lastname)
           }
         }
       )
@@ -441,34 +447,34 @@ export class AssessmentFormComponent {
   ))
 
   traineeSkillEvalForm = this.fb.group({
-    autonomy : ['To determine'],
-    activeListeningSkills : ['To determine'],
-    abilityToWork : ['To determine'],
-    socialAdaptation : ['To determine'],
-    initiative : ['To determine'],
-    imagination : ['To determine'],
-    analyticalSkills : ['To determine'],
-    oralSkills : ['To determine'],
+    autonomy : [''],
+    activeListeningSkills : [''],
+    abilityToWork : [''],
+    socialAdaptation : [''],
+    initiative : [''],
+    imagination : [''],
+    analyticalSkills : [''],
+    oralSkills : [''],
     additionalInfo : [''],
   });
 
   traineeKnowledgeForm = this.fb.group({
-    writtenCommunicationSkills :['To determine'],
-    fieldOfSpecialization : ['To determine'],
-    assumeResponsibilities : ['To determine'],
-    produceRequestedDocs : ['To determine'],
-    makeRecommendations : ['To determine'],
-    popularizeTerminology : ['To determine'],
+    writtenCommunicationSkills :[''],
+    fieldOfSpecialization : [''],
+    assumeResponsibilities : [''],
+    produceRequestedDocs : [''],
+    makeRecommendations : [''],
+    popularizeTerminology : [''],
     additionalInfo : [''],
   });
 
   traineeGlobalEvalForm = this.fb.group({
-    rating : ['To determine'],
+    rating : [''],
     additionalInfo : [''],
   });
 
   supervisorForm = this.fb.group({
-    id: ['To determine'],
+    id: [''],
     code : ['', [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
     email : [''],
     firstname : [''],
@@ -477,18 +483,48 @@ export class AssessmentFormComponent {
   });
 
   submitForm() {
-    console.log(this.studentInfoForm.getRawValue())
+    const form = {
+      supervisor: this.userInfo().value,
+      studentIntern : this.selectedStudent as Intern,
+      internshipRatingNote: this.internshipRatingNoteForm.getRawValue().internshipRatingNote as string,
+      traineeSkillEval : this.traineeSkillEvalForm.getRawValue() as TraineeSkillEval,
+      traineeKnowledge: this.traineeKnowledgeForm.getRawValue() as TraineeKnowledge,
+      traineeGlobalEval: this.traineeGlobalEvalForm.getRawValue() as TraineeGlobalEval
+    } as AssessmentForm;
 
-    console.log(this.internshipRatingNoteForm.getRawValue())
+    const dialogRef = this.dialog.open(AssociateFormDialogComponent, {
+      minWidth: '300px',
+      data : form
+    });
 
-    console.log(this.traineeSkillEvalForm.getRawValue())
+    dialogRef.afterClosed().subscribe((value: AssessmentForm) => {
+      form.internshipGeneratedCode = value.internshipGeneratedCode;
 
-    console.log(this.traineeKnowledgeForm.getRawValue())
+      if (form.internshipRatingNote === ""){
+        delete form.internshipRatingNote;
+      }
 
-    console.log(this.traineeGlobalEvalForm.getRawValue())
+      if (this.isObjectEmpty(form.traineeSkillEval)){
+        delete form.traineeSkillEval;
+      }
 
-    console.log(this.supervisorForm.getRawValue())
+      if (this.isObjectEmpty(form.traineeKnowledge)){
+        delete form.traineeKnowledge;
+      }
 
+      if (this.isObjectEmpty(form.traineeGlobalEval)){
+        delete form.traineeGlobalEval;
+      }
+      this.backendService.createAssessmentForm(form).subscribe( res => {
+        this.notificationService.showSuccessNotification("Fiche d'évaluation crée");
+        //this.studentInfoForm.reset()
+        this.internshipRatingNoteForm.reset()
+        this.traineeSkillEvalForm.reset()
+        this.traineeKnowledgeForm.reset()
+        this.traineeGlobalEvalForm.reset()
+        this.supervisorForm.reset()
+      });
+    })
   }
 
 //----------------------------------------------------------------------------
@@ -503,6 +539,17 @@ export class AssessmentFormComponent {
     return this.backendService.getStudents(<string>filterValue).pipe(
       tap(students => console.log(students)),
     );
+  }
+
+  private isObjectEmpty(obj: any){
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        if (obj[key] !== '') {
+          return false;
+        }
+      }
+    }
+    return true;
   }
 
   onOptionSelected(data: any) {

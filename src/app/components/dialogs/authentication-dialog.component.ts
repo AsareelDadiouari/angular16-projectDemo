@@ -16,11 +16,10 @@ import {BackendService} from "../../services/backend.service";
   `]
 })
 export class AuthenticationDialogComponent implements OnInit{
-  @Optional() dialogRef = inject(MatDialogRef<AuthenticationComponent>)
-  @Inject(MAT_DIALOG_DATA) data : any
+  @Optional() dialogRef = inject(MatDialogRef<AuthenticationDialogComponent>)
   backendService = inject(BackendService)
 
-  constructor() {
+  constructor(@Inject(MAT_DIALOG_DATA) data : any) {
     effect(() => {
       if (this.backendService.authenticated().state){
         this.dialogRef.close();

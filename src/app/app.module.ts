@@ -39,6 +39,9 @@ import {AuthInterceptor} from "./auth.interceptor";
 import {SpinnerComponent} from "./components/spinner.component";
 import {AssociateForm} from "./pages/associate-form";
 import {MatCheckboxModule} from "@angular/material/checkbox";
+import {AssessmentTemplateComponent} from "./components/assessment-template.component";
+import {MatCardModule} from "@angular/material/card";
+import {AssociateFormDialogComponent} from "./components/dialogs/associate-form-dialog.component";
 
 @NgModule({
   declarations: [
@@ -48,6 +51,8 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
     AssessmentFormComponent,
     AuthenticationComponent,
     AuthenticationDialogComponent,
+    AssessmentTemplateComponent,
+    AssociateFormDialogComponent,
     SpinnerComponent,
     AssociateForm,
     CastPipe,
@@ -83,6 +88,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
     AngularFireStorageModule,
     MatAutocompleteModule,
     MatCheckboxModule,
+    MatCardModule,
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'en' },
