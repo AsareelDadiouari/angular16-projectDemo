@@ -426,7 +426,6 @@ export class AssessmentFormComponent {
     switchMap((value) => {
       if (this.backendService.authenticated().state)
         return this.backendService.getStudents(value!.toUpperCase())
-
       return []
     }),
     tap((value) => {

@@ -11,11 +11,12 @@ import {NotificationService} from "./notification.service";
 import {LoginModel} from "../models/login.model";
 import * as assert from "assert";
 import {Router} from "@angular/router";
-import {BehaviorSubject, flatMap, forkJoin, from, map, mergeMap, Observable, switchMap, take, tap} from "rxjs";
+import {BehaviorSubject, flatMap, forkJoin, from, map, mergeMap, Observable, of, switchMap, take, tap} from "rxjs";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {HttpClient} from "@angular/common/http";
 import {Intern} from "../models/intern";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
+import {AssessmentForm} from "../models/assessmentForm.model";
 
 
 @Injectable({
@@ -159,7 +160,15 @@ export class BackendService {
     })
   }
 
-  // Use with caution, kind of create an unexpected large number of students
+  createAssessmentForm(assessment: AssessmentForm) {
+    return from(this.db.list("assessment").push(assessment))
+  }
+
+  getAssessments(){
+    return this.db.list<AssessmentForm>('assessment', ref => ref.orderByChild('timestamp')).valueChanges();
+  }
+
+  // Use with caution, kind of create an unexpected large number of data
   populateStudents(number: number){
     const url = "https://randomuser.me/api/"
     const observables = []
@@ -209,7 +218,7 @@ export class BackendService {
     }
   }
 
-  private getUserFromLocal(){
+  public getUserFromLocal(){
     const authData = localStorage.getItem('auth');
 
     if (authData) {

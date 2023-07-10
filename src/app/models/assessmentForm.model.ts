@@ -2,12 +2,13 @@ import {Intern} from "./intern";
 import {Supervisor} from "./supervisor.model";
 
 export type AssessmentForm = {
-  id: string
+  id?: string
+  internshipGeneratedCode? : string
   studentIntern : Intern
-  internshipRatingNote: string
-  traineeSkillEval: TraineeSkillEval
-  traineeKnowledge : TraineeKnowledge
-  traineeGlobalEval : TraineeGlobalEval
+  internshipRatingNote?: string
+  traineeSkillEval?: TraineeSkillEval
+  traineeKnowledge?: TraineeKnowledge
+  traineeGlobalEval?: TraineeGlobalEval
   supervisor : Supervisor
 };
 

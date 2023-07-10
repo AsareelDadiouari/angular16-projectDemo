@@ -37,6 +37,5 @@ export class AppComponent implements OnInit{
   notificationService = inject(NotificationService)
 
   ngOnInit() {
-    console.log(this.notificationService.showSpinner())
   }
 }
