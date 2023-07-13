@@ -7,7 +7,7 @@ import {BackendService} from "../../services/backend.service";
   selector: 'app-auth-dialog',
   template: `
     <section class=".container">
-      <app-login></app-login>
+      <app-login (tabIsExpanded)="isExpanded($event)"></app-login>
     </section>
   `,
   styles : [`
@@ -28,5 +28,12 @@ export class AuthenticationDialogComponent implements OnInit{
   }
 
   ngOnInit(): void {
+  }
+
+  isExpanded(state: boolean){
+    if(state){
+      this.dialogRef.updateSize("405px")
+    } else
+      this.dialogRef.updateSize("300px")
   }
 }

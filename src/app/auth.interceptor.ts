@@ -7,7 +7,7 @@ import {BackendService} from "./services/backend.service";
 export class AuthInterceptor implements HttpInterceptor {
   backend = inject(BackendService);
   constructor() {
-    console.log("In the Interceptro")
+    console.log("In the interceptor")
     this.backend.fbAuth.user.subscribe(test => console.log(test))
   }
 

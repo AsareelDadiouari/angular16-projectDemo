@@ -11,7 +11,9 @@ A signal is a wrapper around a value that can notify interested consumers when t
 Writable signals provide an API for updating their values directly. You create writable signals by calling the signal function with the signal's initial value:
 
 ```typescript
-getUserFromLocal()
+import {Supervisor} from "./supervisor.model";
+
+getUserFromLocal(): [Partial<Supervisor>, boolean]
 {
   const authData = localStorage.getItem('auth');
 
@@ -26,7 +28,7 @@ getUserFromLocal()
   return [{}, false];
 }
 
-authenticated = signal({
+authenticated : WritableSignal<{ value: Partial<Supervisor>, state: boolean }> = signal({
   value: this.getUserFromLocal()[0],
   state: this.getUserFromLocal()[1]
 })
@@ -40,7 +42,7 @@ this.authenticated.set({value: professorArray[index], state: true});
 A computed signal derives its value from other signals. Define one using computed and specifying a derivation function:
 
 ```typescript
-getAuthenticatedUser()
+getAuthenticatedUser(): Signal<{value: any, state: boolean}>
 {
   return computed(() => {
     const data: any  = this.authenticated().value
@@ -55,7 +57,7 @@ getAuthenticatedUser()
 Signals are useful because they can notify interested consumers when they change. An effect is an operation that runs whenever one or more signal values change. You can create an effect with the effect function:
 
 ```typescript
-userInfo = this.backendService.getAuthenticatedUser();
+userInfo: Signal<{value: any, state: boolean}> = this.backendService.getAuthenticatedUser();
 
 constructor() 
 {
@@ -79,7 +81,7 @@ supervisorForm = this.fb.group({
 ### Conversions
 toSignal() can be used to convert an observable to a signal.
 ```typescript
-students = toSignal(this.studentInfoForm.valueChanges.pipe(
+students: Signal<Intern[] | undefined> = toSignal(this.studentInfoForm.valueChanges.pipe(
   switchMap((value) => this.backendService.getStudents(<string>value.permanentCode?.toUpperCase()))
 ))
 ```

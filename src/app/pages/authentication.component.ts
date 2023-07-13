@@ -1,4 +1,12 @@
-import {Component, ComponentFactoryResolver, ElementRef, inject, ViewChild, ViewContainerRef} from "@angular/core";
+import {
+  Component,
+  ComponentFactoryResolver,
+  ElementRef, EventEmitter,
+  inject,
+  Output,
+  ViewChild,
+  ViewContainerRef
+} from "@angular/core";
 import {LocalizationService} from "../services/localization.service";
 import {FormBuilder, Validators} from "@angular/forms";
 import {BackendService} from "../services/backend.service";
@@ -152,7 +160,11 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
     }
 
     mat-form-field {
-      width: 100%;
+      width: inherit !important;
+    }
+
+    mat-select {
+      width: inherit !important;
     }
 
     button[type="submit"] {
@@ -165,6 +177,7 @@ export class AuthenticationComponent {
   fb = inject(FormBuilder);
   displayChangePasswordTab: boolean = false;
   @ViewChild('Tab') tabGroup!: MatTabGroup;
+  @Output() tabIsExpanded = new EventEmitter<boolean>(this.displayChangePasswordTab);
 
   backendService = inject(BackendService);
   localizationService = inject(LocalizationService);
@@ -220,6 +233,7 @@ export class AuthenticationComponent {
 
   clickOnForgetPassword() {
     this.displayChangePasswordTab = true;
+    this.tabIsExpanded.emit(this.displayChangePasswordTab);
     this.tabGroup.selectedIndex = 2;
   }
 
@@ -230,6 +244,7 @@ export class AuthenticationComponent {
     }).subscribe(value => {
       console.log(value)
       this.displayChangePasswordTab = false;
+      this.tabIsExpanded.emit(this.displayChangePasswordTab);
       this.tabGroup.selectedIndex = 0;
     })
   }
