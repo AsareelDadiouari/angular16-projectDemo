@@ -7,6 +7,7 @@ import {BackendService} from "./services/backend.service";
 export class AuthInterceptor implements HttpInterceptor {
   backend = inject(BackendService);
   constructor() {
+    console.log("In the Interceptro")
     this.backend.fbAuth.user.subscribe(test => console.log(test))
   }
 
@@ -16,10 +17,14 @@ export class AuthInterceptor implements HttpInterceptor {
       switchMap((token: any) => {
         if (token) {
           request = request.clone({
-            setHeaders: { Authorization: `Bearer ${token}` }
+            setHeaders: {
+              Authorization: `Bearer ${token}`,
+              Accept: "application/json",
+            },
+            withCredentials: true,
           });
         }
-        alert("bruh")
+        console.log("access", token);
         return next.handle(request);
       })
     );

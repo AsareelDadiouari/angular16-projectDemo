@@ -1,4 +1,4 @@
-import {Component, ElementRef, inject, ViewChild} from "@angular/core";
+import {Component, ComponentFactoryResolver, ElementRef, inject, ViewChild, ViewContainerRef} from "@angular/core";
 import {LocalizationService} from "../services/localization.service";
 import {FormBuilder, Validators} from "@angular/forms";
 import {BackendService} from "../services/backend.service";
@@ -36,6 +36,7 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
           </div>
 
           <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">Login</button>
+          <a (click)="clickOnForgetPassword()" style="color: #1976d2; margin-top: 10px; cursor: pointer">Changer le mot de passe cliquez ici.</a>
         </form>
 
       </mat-tab>
@@ -97,6 +98,45 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
           <button mat-raised-button color="primary" type="submit" [disabled]="signUpForm.invalid">Sign Up</button>
         </form>
       </mat-tab>
+      <ng-container *ngIf="displayChangePasswordTab">
+        <mat-tab [label]="localizationService.getLanguage() === 'en' ? 'Forget Password' : 'Mot de passe'">
+          <form class="newPassword-form" [formGroup]="changePasswordForm"  (submit)="submitNewPassword()">
+            <div class="form-group">
+              <mat-form-field appearance="outline">
+                <mat-label>Email</mat-label>
+                <input matInput formControlName="email" type="email" required>
+                <mat-error
+                  *ngIf="changePasswordForm.controls.email.invalid && changePasswordForm.controls.email.touched">
+                  Please enter a valid email.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline">
+                <mat-label>Current Password</mat-label>
+                <input matInput formControlName="currentPassword" type="password" required>
+                <mat-error
+                  *ngIf="changePasswordForm.controls.currentPassword.invalid && changePasswordForm.controls.currentPassword.touched">
+                  Please enter the current password.
+                </mat-error>
+              </mat-form-field>
+            </div>
+
+            <div class="form-group">
+              <mat-form-field appearance="outline">
+                <mat-label>New Password</mat-label>
+                <input matInput formControlName="newPassword" type="password" required>
+                <mat-error
+                  *ngIf="changePasswordForm.controls.newPassword.invalid && changePasswordForm.controls.newPassword.touched">
+                  Please enter a new password.
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <button mat-raised-button color="primary" type="submit" [disabled]="changePasswordForm.invalid">Submit</button>
+          </form>
+        </mat-tab>
+      </ng-container>
     </mat-tab-group>
   `,
   styles: [`
@@ -104,7 +144,7 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
       margin-bottom: 20px;
     }
 
-    .signup-form ,.login-form {
+    .signup-form ,.login-form, .newPassword-form {
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -123,28 +163,34 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 })
 export class AuthenticationComponent {
   fb = inject(FormBuilder);
+  displayChangePasswordTab: boolean = false;
   @ViewChild('Tab') tabGroup!: MatTabGroup;
 
   backendService = inject(BackendService);
   localizationService = inject(LocalizationService);
   loginForm = this.fb.group({
-    email: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required, ],
   });
 
   signUpForm = this.fb.group({
-    email: ['', Validators.required],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', Validators.required, ],
     firstname: ['', Validators.required],
     lastname: ['', Validators.required],
     role: ['', Validators.required],
   });
 
+  changePasswordForm = this.fb.group({
+    email: ['', [Validators.required, Validators.email]],
+    currentPassword: ['', Validators.required, ],
+    newPassword: ['', Validators.required, ],
+  })
+
   localLogin() {
     this.backendService.firebaseLogin(this.loginForm.getRawValue() as LoginModel).subscribe((value => {
-      localStorage.setItem("refeshToken", JSON.stringify(value.user?.refreshToken))
+      localStorage.setItem("refreshToken", JSON.stringify(value?.user!.refreshToken));
     }));
-    //this.backendService.localStorageLogin(this.loginForm.getRawValue() as LoginModel);
   }
 
   signUp() {
@@ -153,7 +199,7 @@ export class AuthenticationComponent {
     if (supervisorData.role?.includes("Professeur")  || supervisorData.role?.includes("Professor") ){
       const supervisor: Professor = {
         code: '',
-        email: supervisorData.email || '',
+        email: supervisorData.email!.toLowerCase() || '',
         firstname: supervisorData.firstname || '',
         lastname: supervisorData.lastname || '',
         password: supervisorData.password || '',
@@ -163,12 +209,28 @@ export class AuthenticationComponent {
     } else {
       this.backendService.createSupervisor({
         code: '',
-        email: supervisorData.email || '',
+        email: supervisorData.email!.toLowerCase() || '',
         firstname: supervisorData.firstname || '',
         lastname: supervisorData.lastname || '',
         password: supervisorData.password
       } as Headmaster)
         .subscribe(() => {this.tabGroup.selectedIndex = 0});
     }
+  }
+
+  clickOnForgetPassword() {
+    this.displayChangePasswordTab = true;
+    this.tabGroup.selectedIndex = 2;
+  }
+
+  submitNewPassword() {
+    this.backendService.changePassword({
+      email: this.changePasswordForm.controls.email.value?.toLowerCase(),
+      ...this.changePasswordForm.getRawValue() as Pick<any, "currentPassword" | "newPassword">
+    }).subscribe(value => {
+      console.log(value)
+      this.displayChangePasswordTab = false;
+      this.tabGroup.selectedIndex = 0;
+    })
   }
 }

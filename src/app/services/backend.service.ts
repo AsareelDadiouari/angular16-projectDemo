@@ -11,12 +11,26 @@ import {NotificationService} from "./notification.service";
 import {LoginModel} from "../models/login.model";
 import * as assert from "assert";
 import {Router} from "@angular/router";
-import {BehaviorSubject, flatMap, forkJoin, from, map, mergeMap, Observable, of, switchMap, take, tap} from "rxjs";
+import {
+  BehaviorSubject, catchError, combineLatest,
+  flatMap,
+  forkJoin,
+  from,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  switchMap,
+  take,
+  tap,
+  throwError
+} from "rxjs";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {HttpClient} from "@angular/common/http";
 import {Intern} from "../models/intern";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import {AssessmentForm} from "../models/assessmentForm.model";
+import {reauthenticateWithCredential} from "@angular/fire/auth";
 
 
 @Injectable({
@@ -123,7 +137,13 @@ export class BackendService {
 
   firebaseLogin(loginInfo: LoginModel){
     return from(this.fbAuth.signInWithEmailAndPassword(loginInfo.email, loginInfo.password)).pipe(
-      tap(() =>  this.localStorageLogin(loginInfo))
+      tap((user) => {
+        this.localStorageLogin(loginInfo);
+      }),
+      catchError(err => {
+        this.localStorageLogin(loginInfo);
+        return throwError(err)
+      })
     );
   }
 
@@ -134,11 +154,62 @@ export class BackendService {
     });
     this.notificationService.showSuccessNotification("Deconnexion Reussi");
     localStorage.removeItem('auth');
+    localStorage.removeItem('refreshToken');
+
     //this.router.navigate(['/']).then(() => this.notificationService.showSuccessNotification("Deconnexion Reussi"))
   }
 
   firebaseLogOut(){
     return from(this.fbAuth.signOut())
+  }
+
+  changePassword(changePasswordForm: any){
+    return combineLatest([this.db.list<Supervisor>("supervisor/professors", (ref) => {
+      return ref.orderByChild("email").equalTo(changePasswordForm.email)
+        .ref.orderByChild("password").equalTo(changePasswordForm.currentPassword);
+    }).valueChanges(),
+      this.db.list<Supervisor>("supervisor/headmaster", (ref) => {
+        return ref.orderByChild("email").equalTo(changePasswordForm.email)
+          .ref.orderByChild("password").equalTo(changePasswordForm.currentPassword);
+      }).valueChanges()
+    ]).pipe(
+      mergeMap(([value1, value2]) => {
+        return  [
+          ...value1.map((value) => ({ ...value, source: "value1" })),
+          ...value2.map((value) => ({ ...value, source: "value2" })),
+        ]
+          .filter(value => value.email === changePasswordForm.email)
+          .map(value => {
+          if (value.source === "value1"){
+            this.db.database.ref("supervisor/professors/" + value.id).update({
+              password : changePasswordForm.newPassword
+            }).then(res => {
+              this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.password).then(val=> {
+                return val.user?.updatePassword(changePasswordForm.newPassword);
+              }).then(_ => {
+                console.log("PROFESSORS");
+              })
+              this.notificationService.showSuccessNotification("Mot de passe a jour");
+            })
+          } else if (value.source === "value2"){
+            this.db.database.ref("supervisor/headmaster/" + value.id).update({
+              password : changePasswordForm.newPassword
+            }).then(res => {
+              this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.password).then(val=> {
+                return val.user?.updatePassword(changePasswordForm.newPassword);
+              }).then(_ => {
+                console.log("HEADMASTER");
+              })
+              this.notificationService.showSuccessNotification("Mot de passe a jour");
+            })
+          }
+          return value;
+        });
+      }),
+      map(value => {
+        return value as Omit<Supervisor, "password">
+      })
+    )
   }
 
   getStudents(code: string): Observable<Intern[]> {

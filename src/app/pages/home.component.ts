@@ -89,7 +89,6 @@ export class HomeComponent implements OnInit{
         this.backendService.getAssessments().subscribe(data => {
           if (this.userInfo().state && (this.backendService.getUserFromLocal()[0] as any).role === "Professor"){
             this.myAssessments.set(data.filter(value => value.supervisor.code ===  this.userInfo().value.code ))
-            console.log(this.myAssessments());
 
           } else if (this.userInfo().state && (this.backendService.getUserFromLocal()[0] as any).role === "Headmaster"){
             this.assessmentsIncomplete.set(data.filter(value => value.supervisor.code !==  this.userInfo().value.code && !this.formIsCompleted(value)))

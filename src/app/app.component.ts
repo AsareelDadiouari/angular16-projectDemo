@@ -3,7 +3,8 @@ import { LOCALE_ID } from '@angular/core';
 import { registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import {BackendService} from "./services/backend.service";
-import {NotificationService} from "./services/notification.service"; // Import locale data for English
+import {NotificationService} from "./services/notification.service";
+import {from} from "rxjs"; // Import locale data for English
 registerLocaleData(localeEn, 'en');
 
 @Component({
@@ -34,7 +35,7 @@ export class AppComponent implements OnInit{
     { code: 'en-US', label: 'English' },
     { code: 'fr', label: 'Français' }
   ];
-  notificationService = inject(NotificationService)
+  backendService = inject(BackendService)
 
   ngOnInit() {
   }
