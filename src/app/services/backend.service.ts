@@ -242,6 +242,18 @@ export class BackendService {
     return this.db.list<AssessmentForm>('assessment', ref => ref.orderByChild('timestamp')).valueChanges();
   }
 
+  updateAssessmentCode(id : string, code: string){
+    return from(this.db.database.ref("assessment/" + id).update({
+      internshipGeneratedCode: code
+    })).pipe(
+      tap(_ => this.notificationService.showSuccessNotification("Code modifié")),
+      catchError(err => {
+        this.notificationService.showErrorNotification("something is wrong")
+        return throwError(err);
+      })
+    )
+  }
+
   // Use with caution, kind of create an unexpected large number of data
   populateStudents(number: number){
     const url = "https://randomuser.me/api/"
