@@ -6,6 +6,7 @@ import {map, tap} from "rxjs";
 import {Supervisor} from "../models/supervisor.model";
 import {NotificationService} from "../services/notification.service";
 import {MatDialog} from "@angular/material/dialog";
+import options from "../options";
 
 @Component({
   selector: 'app-landing-page',
@@ -92,8 +93,8 @@ export class HomeComponent implements OnInit{
             this.myAssessments.set(data.filter(value => value.supervisor.code ===  this.userInfo().value.code ))
 
           } else if (this.userInfo().state && (this.backendService.getUserFromLocal()[0] as any).role === "Headmaster"){
-            this.assessmentsIncomplete.set(data.filter(value => value.supervisor.code !==  this.userInfo().value.code && !this.formIsCompleted(value)))
-            this.assessmentsCompleted.set(data.filter(value => value.supervisor.code !==  this.userInfo().value.code && this.formIsCompleted(value)))
+            this.assessmentsIncomplete.set(data.filter(value => value.supervisor.code !==  this.userInfo().value.code && !options.formIsCompleted(value)))
+            this.assessmentsCompleted.set(data.filter(value => value.supervisor.code !==  this.userInfo().value.code && options.formIsCompleted(value)))
             this.myAssessments.set(data.filter(value => value.supervisor.code ===  this.userInfo().value.code ))
           }
 
@@ -108,13 +109,6 @@ export class HomeComponent implements OnInit{
   }
 
   ngOnInit() {
-  }
-
-  private formIsCompleted(value: AssessmentForm) : boolean {
-    return !(value.internshipRatingNote === undefined ||
-      value.traineeSkillEval === undefined ||
-      value.traineeKnowledge === undefined ||
-      value.traineeGlobalEval === undefined);
   }
 
   uploadImageEvent($event: Event): void {

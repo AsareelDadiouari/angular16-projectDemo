@@ -31,6 +31,7 @@ import {Intern} from "../models/intern";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import {AssessmentForm} from "../models/assessmentForm.model";
 import {reauthenticateWithCredential} from "@angular/fire/auth";
+import options from "../options";
 
 
 @Injectable({
@@ -243,7 +244,8 @@ export class BackendService {
   }
 
   updateAssessment(assessment: AssessmentForm): Observable<void>{
-    return from(this.db.database.ref("assessment/" + assessment.id).update(assessment))
+    console.log("assessment/" + assessment.id);
+    return from(this.db.database.ref("assessment/" + assessment.id).update(options.removeUndefinedProperties(assessment)))
   }
 
   updateAssessmentCode(id : string, code: string){

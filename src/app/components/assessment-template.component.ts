@@ -8,6 +8,7 @@ import {FormControl} from "@angular/forms";
 import options from "../options";
 import {AssessmentFormInfoComponent} from "./dialogs/assessment-form-info.component";
 import {Router} from "@angular/router";
+import {data} from "autoprefixer";
 
 @Component({
   selector: "app-assessment-template",
@@ -26,6 +27,8 @@ import {Router} from "@angular/router";
               <mat-icon (click)="codeEditMode = false">close</mat-icon>
             </span>
           </ng-container>
+          <mat-icon class="completed-badge" *ngIf="options.formIsCompleted(this.assessment)" matTooltip="Completed Assessment">check_circle</mat-icon>
+          <mat-icon class="uncompleted-badge" *ngIf="!options.formIsCompleted(this.assessment)" matTooltip="Incomplete Assessment">info</mat-icon>
         </mat-card-title>
       </mat-card-header>
       <mat-card-content>
@@ -34,7 +37,10 @@ import {Router} from "@angular/router";
       </mat-card-content>
       <mat-card-actions class="button-container">
         <button (click)="fill()" *ngIf="isProfessor || (isHeadMaster && this.assessment.supervisor?.code === this.userInfo().value.code)" mat-button>Fill</button>
-        <button (click)="infos()" *ngIf="isHeadMaster && this.assessment.supervisor?.code !== this.userInfo().value.code" mat-button>Infos</button>
+        <button (click)="infos()"
+                *ngIf="(isHeadMaster && this.assessment.supervisor?.code !== this.userInfo().value.code) || ((isProfessor || isHeadMaster) && options.formIsCompleted(this.assessment))"
+                mat-button
+                [ngClass]="{ 'right-align': options.formIsCompleted(this.assessment) && (this.assessment.supervisor.code === this.userInfo().value.code) }">Infos</button>
       </mat-card-actions>
     </mat-card>
   `,
@@ -73,6 +79,29 @@ import {Router} from "@angular/router";
       margin-left: 60px;
     }
 
+    .completed-badge {
+      color: green;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+    }
+
+    .uncompleted-badge {
+      color: yellow;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+    }
+
+    .badge {
+      border-bottom: 2px solid;
+      padding-bottom: 2px;
+    }
+
+    .right-align {
+      margin-left: auto;
+    }
+
   `]
 })
 export class AssessmentTemplateComponent implements AfterContentInit{
@@ -105,4 +134,7 @@ export class AssessmentTemplateComponent implements AfterContentInit{
       this.codeEditMode = false;
     })
   }
+
+
+  protected readonly options = options;
 }

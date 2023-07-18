@@ -403,7 +403,7 @@ export class AssessmentFormComponent implements AfterContentInit{
   userInfo = this.backendService.getAuthenticatedUser();
   selectedStudent!: Intern | undefined;
   assessmentFormRouter: AssessmentForm | undefined;
-  updateMode = false;
+  updateMode = options.getValueOrThrow(this.activatedRoute.snapshot.paramMap.get('id?')) !== undefined;
   @ViewChild("matAutocompleteStudentCode") matAutocompleteStudentCode!: MatAutocomplete
 
   constructor() {
@@ -424,7 +424,6 @@ export class AssessmentFormComponent implements AfterContentInit{
       this.assessmentFormRouter = value;
 
       if (this.assessmentFormRouter){
-        this.updateMode = true;
 
         this.internshipRatingNoteForm.patchValue({
           internshipRatingNote: this.assessmentFormRouter?.internshipRatingNote
@@ -557,6 +556,7 @@ export class AssessmentFormComponent implements AfterContentInit{
    if (this.updateMode){
      form.internshipGeneratedCode = this.assessmentFormRouter?.internshipGeneratedCode;
      form.id = options.getValueOrThrow(this.activatedRoute.snapshot.paramMap.get('id?'));
+
     this.backendService.updateAssessment(form).subscribe(() => {
        this.notificationService.showSuccessNotification("Fiche d'évaluation Mise à jour");
        this.router.navigate(['/'])
