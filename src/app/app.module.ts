@@ -42,6 +42,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import {AssessmentTemplateComponent} from "./components/assessment-template.component";
 import {MatCardModule} from "@angular/material/card";
 import {AssociateFormDialogComponent} from "./components/dialogs/associate-form-dialog.component";
+import {AssessmentFormInfoComponent} from "./components/dialogs/assessment-form-info.component";
 
 @NgModule({
   declarations: [
@@ -53,6 +54,7 @@ import {AssociateFormDialogComponent} from "./components/dialogs/associate-form-
     AuthenticationDialogComponent,
     AssessmentTemplateComponent,
     AssociateFormDialogComponent,
+    AssessmentFormInfoComponent,
     SpinnerComponent,
     AssociateForm,
     CastPipe,

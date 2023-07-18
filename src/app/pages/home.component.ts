@@ -5,6 +5,7 @@ import {BackendService} from "../services/backend.service";
 import {map, tap} from "rxjs";
 import {Supervisor} from "../models/supervisor.model";
 import {NotificationService} from "../services/notification.service";
+import {MatDialog} from "@angular/material/dialog";
 
 @Component({
   selector: 'app-landing-page',

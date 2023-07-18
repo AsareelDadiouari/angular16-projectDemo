@@ -19,6 +19,11 @@ let routes: Routes = [
     pathMatch: 'full',
   },
   {
+    path: 'evaluation/:id?',
+    component: AssessmentFormComponent,
+    pathMatch: 'full',
+  },
+  {
     path: 'auth',
     component: AuthenticationComponent,
     pathMatch: 'full',

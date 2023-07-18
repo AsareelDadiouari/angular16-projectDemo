@@ -6,6 +6,8 @@ import {AuthenticationDialogComponent} from "./dialogs/authentication-dialog.com
 import {AssociateFormDialogComponent} from "./dialogs/associate-form-dialog.component";
 import {FormControl} from "@angular/forms";
 import options from "../options";
+import {AssessmentFormInfoComponent} from "./dialogs/assessment-form-info.component";
+import {Router} from "@angular/router";
 
 @Component({
   selector: "app-assessment-template",
@@ -75,23 +77,27 @@ import options from "../options";
 })
 export class AssessmentTemplateComponent implements AfterContentInit{
   backendService = inject(BackendService);
+  dialog = inject(MatDialog);
   userInfo = this.backendService.getAuthenticatedUser();
   @Input() assessment!: AssessmentForm;
   codeEditMode: boolean = false;
   inputValue!: FormControl<string | null>;
   isProfessor: boolean = (this.backendService.getUserFromLocal()[0] as any).role === "Professor"
   isHeadMaster: boolean  = (this.backendService.getUserFromLocal()[0] as any).role === "Headmaster"
+  router = inject(Router);
 
   ngAfterContentInit(): void {
     this.inputValue = new FormControl<string>(options.getValueOrThrow(this.assessment.internshipGeneratedCode));
   }
 
   fill() {
-
+    this.router.navigate(['/evaluation', this.assessment.id], {state: { data: this.assessment }});
   }
 
   infos() {
-
+    const dialogRef = this.dialog.open(AssessmentFormInfoComponent, {
+      data : this.assessment
+    });
   }
 
   changeCode() {

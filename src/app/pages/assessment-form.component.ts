@@ -1,9 +1,9 @@
-import {Component, computed, effect, inject, LOCALE_ID, ViewChild} from '@angular/core';
+import {AfterContentInit, Component, computed, effect, inject, LOCALE_ID, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {LocalizationService} from "../services/localization.service";
 import {BackendService} from "../services/backend.service";
 import {Intern} from "../models/intern";
-import {concatMap, filter, find, forkJoin, map, startWith, switchMap, take, tap} from 'rxjs';
+import {concatMap, filter, find, forkJoin, from, map, of, startWith, switchMap, take, tap} from 'rxjs';
 import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 import {MatOption} from "@angular/material/core";
 import {MatAutocomplete} from "@angular/material/autocomplete";
@@ -11,6 +11,8 @@ import {AssessmentForm, TraineeGlobalEval, TraineeKnowledge, TraineeSkillEval} f
 import {MatDialog} from "@angular/material/dialog";
 import {AssociateFormDialogComponent} from "../components/dialogs/associate-form-dialog.component";
 import {NotificationService} from "../services/notification.service";
+import {ActivatedRoute, Router} from "@angular/router";
+import options from "../options";
 
 @Component({
   selector: 'app-assessment-form',
@@ -390,14 +392,18 @@ import {NotificationService} from "../services/notification.service";
   `],
   providers: [{ provide: LOCALE_ID, useValue: 'en-US' }]
 })
-export class AssessmentFormComponent {
+export class AssessmentFormComponent implements AfterContentInit{
   fb = inject(FormBuilder);
   translationService = inject(LocalizationService);
   backendService = inject(BackendService);
   dialog = inject(MatDialog);
+  activatedRoute = inject(ActivatedRoute);
+  router = inject(Router);
   notificationService = inject(NotificationService);
   userInfo = this.backendService.getAuthenticatedUser();
   selectedStudent!: Intern | undefined;
+  assessmentFormRouter: AssessmentForm | undefined;
+  updateMode = false;
   @ViewChild("matAutocompleteStudentCode") matAutocompleteStudentCode!: MatAutocomplete
 
   constructor() {
@@ -411,6 +417,62 @@ export class AssessmentFormComponent {
       this.studentInfoForm.get("firstname")?.setValue(this.userInfo().state ? this.studentInfoForm.get("firstname")!.value : '');
       this.studentInfoForm.get("permanentCode")?.setValue(this.userInfo().state ? this.studentInfoForm.get("permanentCode")!.value : '');
     })
+  }
+
+  ngAfterContentInit() {
+    of(history.state.data).subscribe((value: AssessmentForm | undefined) => {
+      this.assessmentFormRouter = value;
+
+      if (this.assessmentFormRouter){
+        this.updateMode = true;
+
+        this.internshipRatingNoteForm.patchValue({
+          internshipRatingNote: this.assessmentFormRouter?.internshipRatingNote
+        })
+
+        this.studentInfoForm.patchValue({
+          permanentCode: this.assessmentFormRouter.studentIntern.code,
+          firstname: this.assessmentFormRouter.studentIntern.firstname,
+          lastname: this.assessmentFormRouter.studentIntern.lastname,
+        });
+
+        this.traineeSkillEvalForm.patchValue({
+          autonomy : this.assessmentFormRouter?.traineeSkillEval?.autonomy,
+          activeListeningSkills : this.assessmentFormRouter?.traineeSkillEval?.activeListeningSkills,
+          abilityToWork :this.assessmentFormRouter?.traineeSkillEval?.abilityToWork,
+          socialAdaptation : this.assessmentFormRouter?.traineeSkillEval?.socialAdaptation,
+          initiative : this.assessmentFormRouter?.traineeSkillEval?.initiative,
+          imagination : this.assessmentFormRouter?.traineeSkillEval?.imagination,
+          analyticalSkills : this.assessmentFormRouter?.traineeSkillEval?.analyticalSkills,
+          oralSkills : this.assessmentFormRouter?.traineeSkillEval?.oralSkills,
+          additionalInfo : this.assessmentFormRouter?.traineeSkillEval?.additionalInfo,
+        });
+
+        this.traineeKnowledgeForm.patchValue({
+          writtenCommunicationSkills : this.assessmentFormRouter.traineeKnowledge?.writtenCommunicationSkills,
+          fieldOfSpecialization : this.assessmentFormRouter.traineeKnowledge?.fieldOfSpecialization,
+          assumeResponsibilities :  this.assessmentFormRouter.traineeKnowledge?.assumeResponsibilities,
+          produceRequestedDocs :  this.assessmentFormRouter.traineeKnowledge?.produceRequestedDocs,
+          makeRecommendations :  this.assessmentFormRouter.traineeKnowledge?.makeRecommendations,
+          popularizeTerminology :  this.assessmentFormRouter.traineeKnowledge?.popularizeTerminology,
+          additionalInfo :  this.assessmentFormRouter.traineeKnowledge?.additionalInfo,
+        });
+
+        this.traineeGlobalEvalForm.patchValue({
+          rating : this.assessmentFormRouter.traineeGlobalEval?.rating,
+          additionalInfo : this.assessmentFormRouter.traineeGlobalEval?.additionalInfo,
+        });
+
+        this.supervisorForm.patchValue({
+          id: this.assessmentFormRouter.supervisor.id,
+          code : this.assessmentFormRouter.supervisor.code,
+          email : this.assessmentFormRouter.supervisor.email,
+          firstname : this.assessmentFormRouter.supervisor.firstname,
+          lastname : this.assessmentFormRouter.supervisor.lastname,
+          studentCode: this.assessmentFormRouter.supervisor.studentCode,
+        });
+      }
+    });
   }
 
   selections = [this.translationService.getLanguage() === "en" ? 'Execellent : Excellent performance that meets the standards achieved' : "Excellent : Excellentes performances qui répondent aux normes atteintes",
@@ -427,7 +489,7 @@ export class AssessmentFormComponent {
     firstname: ['', Validators.required],
     lastname: ['', Validators.required, ],
   });
- //
+
   students = toSignal<Intern[]>(this.studentInfoForm.controls['permanentCode'].valueChanges.pipe(
     switchMap((value) => {
       if (this.backendService.authenticated().state)
@@ -485,46 +547,61 @@ export class AssessmentFormComponent {
   submitForm() {
     const form = {
       supervisor: this.userInfo().value,
-      studentIntern : this.selectedStudent as Intern,
+      studentIntern : this.selectedStudent === undefined ? this.assessmentFormRouter?.studentIntern : this.selectedStudent,
       internshipRatingNote: this.internshipRatingNoteForm.getRawValue().internshipRatingNote as string,
       traineeSkillEval : this.traineeSkillEvalForm.getRawValue() as TraineeSkillEval,
       traineeKnowledge: this.traineeKnowledgeForm.getRawValue() as TraineeKnowledge,
       traineeGlobalEval: this.traineeGlobalEvalForm.getRawValue() as TraineeGlobalEval
     } as AssessmentForm;
 
-    const dialogRef = this.dialog.open(AssociateFormDialogComponent, {
-      minWidth: '300px',
-      data : form
-    });
+   if (this.updateMode){
+     form.internshipGeneratedCode = this.assessmentFormRouter?.internshipGeneratedCode;
+     form.id = options.getValueOrThrow(this.activatedRoute.snapshot.paramMap.get('id?'));
+    this.backendService.updateAssessment(form).subscribe(() => {
+       this.notificationService.showSuccessNotification("Fiche d'évaluation Mise à jour");
+       this.router.navigate(['/'])
 
-    dialogRef.afterClosed().subscribe((value: AssessmentForm) => {
-      form.internshipGeneratedCode = value.internshipGeneratedCode;
+       this.internshipRatingNoteForm.reset()
+       this.traineeSkillEvalForm.reset()
+       this.traineeKnowledgeForm.reset()
+       this.traineeGlobalEvalForm.reset()
+       this.supervisorForm.reset()
+     });
+   } else {
+     const dialogRef = this.dialog.open(AssociateFormDialogComponent, {
+       minWidth: '300px',
+       data : form
+     });
 
-      if (form.internshipRatingNote === ""){
-        delete form.internshipRatingNote;
-      }
+     dialogRef.afterClosed().subscribe((value: AssessmentForm) => {
+       form.internshipGeneratedCode = value.internshipGeneratedCode;
 
-      if (this.isObjectEmpty(form.traineeSkillEval)){
-        delete form.traineeSkillEval;
-      }
+       if (form.internshipRatingNote === ""){
+         delete form.internshipRatingNote;
+       }
 
-      if (this.isObjectEmpty(form.traineeKnowledge)){
-        delete form.traineeKnowledge;
-      }
+       if (this.isObjectEmpty(form.traineeSkillEval)){
+         delete form.traineeSkillEval;
+       }
 
-      if (this.isObjectEmpty(form.traineeGlobalEval)){
-        delete form.traineeGlobalEval;
-      }
-      this.backendService.createAssessmentForm(form).subscribe( res => {
-        this.notificationService.showSuccessNotification("Fiche d'évaluation crée");
-        //this.studentInfoForm.reset()
-        this.internshipRatingNoteForm.reset()
-        this.traineeSkillEvalForm.reset()
-        this.traineeKnowledgeForm.reset()
-        this.traineeGlobalEvalForm.reset()
-        this.supervisorForm.reset()
-      });
-    })
+       if (this.isObjectEmpty(form.traineeKnowledge)){
+         delete form.traineeKnowledge;
+       }
+
+       if (this.isObjectEmpty(form.traineeGlobalEval)){
+         delete form.traineeGlobalEval;
+       }
+       this.backendService.createAssessmentForm(form).subscribe( res => {
+         this.notificationService.showSuccessNotification("Fiche d'évaluation créee");
+         //this.studentInfoForm.reset()
+         this.internshipRatingNoteForm.reset()
+         this.traineeSkillEvalForm.reset()
+         this.traineeKnowledgeForm.reset()
+         this.traineeGlobalEvalForm.reset()
+         this.supervisorForm.reset()
+       });
+     })
+   }
   }
 
 //----------------------------------------------------------------------------

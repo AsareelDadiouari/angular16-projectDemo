@@ -242,6 +242,10 @@ export class BackendService {
     return this.db.list<AssessmentForm>('assessment', ref => ref.orderByChild('timestamp')).valueChanges();
   }
 
+  updateAssessment(assessment: AssessmentForm): Observable<void>{
+    return from(this.db.database.ref("assessment/" + assessment.id).update(assessment))
+  }
+
   updateAssessmentCode(id : string, code: string){
     return from(this.db.database.ref("assessment/" + id).update({
       internshipGeneratedCode: code
