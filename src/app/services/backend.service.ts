@@ -244,7 +244,6 @@ export class BackendService {
   }
 
   updateAssessment(assessment: AssessmentForm): Observable<void>{
-    console.log("assessment/" + assessment.id);
     return from(this.db.database.ref("assessment/" + assessment.id).update(options.removeUndefinedProperties(assessment)))
   }
 

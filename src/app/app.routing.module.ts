@@ -22,6 +22,7 @@ let routes: Routes = [
     path: 'evaluation/:id?',
     component: AssessmentFormComponent,
     pathMatch: 'full',
+    canActivate: [authenticationGuard]
   },
   {
     path: 'auth',

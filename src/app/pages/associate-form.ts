@@ -1,4 +1,4 @@
-import {Component, EventEmitter, inject, Input, OnInit, Output, ViewChild} from "@angular/core";
+import {Component, effect, EventEmitter, inject, Input, OnInit, Output, ViewChild} from "@angular/core";
 import {FormBuilder, Validators} from "@angular/forms";
 import {toSignal} from "@angular/core/rxjs-interop";
 import {Intern} from "../models/intern";
@@ -13,6 +13,7 @@ import {AssessmentForm} from "../models/assessmentForm.model";
 import {Professor} from "../models/professor.model";
 import {Headmaster} from "../models/headmaster.model";
 import {NotificationService} from "../services/notification.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-associate-form',
@@ -113,6 +114,8 @@ export class AssociateForm implements OnInit{
   backendService = inject(BackendService);
   localizationService = inject(LocalizationService);
   notificationService = inject(NotificationService);
+  router = inject(Router);
+
   userInfo = this.backendService.getAuthenticatedUser();
   selectedStudent?: Intern;
   @ViewChild("matAutocompleteStudentCode") matAutocompleteStudentCode!: MatAutocomplete;
@@ -121,6 +124,12 @@ export class AssociateForm implements OnInit{
   @Output() submitClicked = new EventEmitter<any>();
 
   inputDisable = false;
+
+  constructor() {
+    effect(() => {
+      !this.backendService.authenticated().state ? this.router.navigate(['/']) : '';
+    })
+  }
 
   ngOnInit() {
     this.associateForm.controls.professorFullname.disable();

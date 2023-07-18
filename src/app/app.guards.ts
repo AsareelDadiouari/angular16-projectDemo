@@ -1,8 +1,9 @@
 import {BackendService} from "./services/backend.service";
-import {inject} from "@angular/core";
-import {Router} from "@angular/router";
+import {effect, inject} from "@angular/core";
+import {Router, UrlTree} from "@angular/router";
 import {AuthenticationDialogComponent} from "./components/dialogs/authentication-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
+import {Observable} from "rxjs";
 
 export function authenticationGuard() {
   const router = inject(Router)

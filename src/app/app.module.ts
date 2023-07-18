@@ -98,7 +98,7 @@ import {AssessmentFormInfoComponent} from "./components/dialogs/assessment-form-
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
       multi: true
-    }
+    },
   ],
   bootstrap: [AppComponent]
 })

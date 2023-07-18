@@ -403,7 +403,7 @@ export class AssessmentFormComponent implements AfterContentInit{
   userInfo = this.backendService.getAuthenticatedUser();
   selectedStudent!: Intern | undefined;
   assessmentFormRouter: AssessmentForm | undefined;
-  updateMode = options.getValueOrThrow(this.activatedRoute.snapshot.paramMap.get('id?')) !== undefined;
+  updateMode =  this.activatedRoute.snapshot.paramMap.get('id?') !== null;
   @ViewChild("matAutocompleteStudentCode") matAutocompleteStudentCode!: MatAutocomplete
 
   constructor() {
@@ -416,12 +416,16 @@ export class AssessmentFormComponent implements AfterContentInit{
       this.studentInfoForm.get("lastname")?.setValue(this.userInfo().state ? this.studentInfoForm.get("lastname")!.value : '');
       this.studentInfoForm.get("firstname")?.setValue(this.userInfo().state ? this.studentInfoForm.get("firstname")!.value : '');
       this.studentInfoForm.get("permanentCode")?.setValue(this.userInfo().state ? this.studentInfoForm.get("permanentCode")!.value : '');
+
+      !this.backendService.authenticated().state && this.updateMode ? this.router.navigate(['/']) : '';
     })
   }
 
   ngAfterContentInit() {
     of(history.state.data).subscribe((value: AssessmentForm | undefined) => {
       this.assessmentFormRouter = value;
+      console.log(this.updateMode);
+      console.log(this.activatedRoute.snapshot.paramMap.get('id?'))
 
       if (this.assessmentFormRouter){
 
