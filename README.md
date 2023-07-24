@@ -58,6 +58,14 @@ Signals are useful because they can notify interested consumers when they change
 
 ```typescript
 userInfo: Signal<{value: any, state: boolean}> = this.backendService.getAuthenticatedUser();
+supervisorForm = this.fb.group({
+  id: ['To determine'],
+  code : ['', [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
+  email : [''],
+  firstname : [''],
+  lastname : [''],
+  studentCode: [''],
+});
 
 constructor() 
 {
@@ -68,15 +76,6 @@ constructor()
     this.supervisorForm.get("lastname")?.setValue(this.userInfo().state ? this.userInfo().value.lastname : '');
   })
 }
-
-supervisorForm = this.fb.group({
-  id: ['To determine'],
-  code : ['', [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
-  email : [''],
-  firstname : [''],
-  lastname : [''],
-  studentCode: [''],
-});
 ```
 ### Conversions
 toSignal() can be used to convert an observable to a signal.
@@ -84,4 +83,15 @@ toSignal() can be used to convert an observable to a signal.
 students: Signal<Intern[] | undefined> = toSignal(this.studentInfoForm.valueChanges.pipe(
   switchMap((value) => this.backendService.getStudents(<string>value.permanentCode?.toUpperCase()))
 ))
+```
+toObservable() is used to do the reverse work.
+```typescript
+const authService = inject(BackendService);
+const router = inject(Router);
+const dialog = inject(MatDialog);
+
+toObservable(authService.authenticated).subscribe(val => {
+  if (!val.state)
+    router.navigate(['/']).then(() => displayAuthModal(router, dialog))
+});
 ```

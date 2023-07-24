@@ -4,7 +4,7 @@ import {HomeComponent} from "./pages/home.component";
 import {AssessmentFormComponent} from "./pages/assessment-form.component";
 import {AuthenticationComponent} from "./pages/authentication.component";
 import {AssociateForm} from "./pages/associate-form";
-import {authenticationGuard} from "./app.guards";
+import { canActivate} from "./app.guards";
 
 
 let routes: Routes = [
@@ -22,7 +22,7 @@ let routes: Routes = [
     path: 'evaluation/:id?',
     component: AssessmentFormComponent,
     pathMatch: 'full',
-    canActivate: [authenticationGuard]
+    canActivate: [canActivate]
   },
   {
     path: 'auth',
@@ -33,7 +33,7 @@ let routes: Routes = [
     path: 'codeGen',
     component: AssociateForm,
     pathMatch: 'full',
-    canActivate: [authenticationGuard]
+    canActivate: [canActivate]
   },
   {
     path: '**',

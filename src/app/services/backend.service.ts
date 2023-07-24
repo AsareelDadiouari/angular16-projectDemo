@@ -25,7 +25,7 @@ import {
   tap,
   throwError
 } from "rxjs";
-import {toSignal} from "@angular/core/rxjs-interop";
+import {toObservable, toSignal} from "@angular/core/rxjs-interop";
 import {HttpClient} from "@angular/common/http";
 import {Intern} from "../models/intern";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
@@ -52,7 +52,6 @@ export class BackendService {
   })
 
   constructor() {
-    //console.log(this.isAuthenticated());
   }
 
   createSupervisor(supervisor: Professor | Headmaster){
@@ -150,6 +149,7 @@ export class BackendService {
 
   localStorageLogout(){
     this.authenticated.update((value) => {
+      value.value = {}
       value.state = false;
       return value;
     });

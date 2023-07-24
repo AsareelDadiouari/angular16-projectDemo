@@ -1,25 +1,46 @@
 import {BackendService} from "./services/backend.service";
-import {effect, inject} from "@angular/core";
-import {Router, UrlTree} from "@angular/router";
+import {effect, inject, Injector} from "@angular/core";
+import {ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, UrlTree} from "@angular/router";
 import {AuthenticationDialogComponent} from "./components/dialogs/authentication-dialog.component";
 import {MatDialog} from "@angular/material/dialog";
-import {Observable} from "rxjs";
+import {catchError, map, Observable, of} from "rxjs";
+import {toObservable} from "@angular/core/rxjs-interop";
 
-export function authenticationGuard() {
-  const router = inject(Router)
-  const oauthService = inject(BackendService);
-  return (() => {
-    if(oauthService.authenticated().state)
-      return true;
-
-     displayAuthModal(router);
-     return router.parseUrl("/");
-  })()
-}
-
-function displayAuthModal(router: Router){
+export const canActivate: CanActivateFn = (
+  route: ActivatedRouteSnapshot,
+  state: RouterStateSnapshot
+) => {
+  const authService = inject(BackendService);
+  const router = inject(Router);
   const dialog = inject(MatDialog);
 
+  toObservable(authService.authenticated).subscribe(val => {
+
+
+    if (!val.state)
+      router.navigate(['/']).then(() => {
+        console.log(route)
+        console.log(state)
+        //displayAuthModal(router, dialog)
+      })
+  });
+
+  return toObservable(authService.authenticated).pipe(
+    map((val) => {
+      if (!val.state){
+        router.navigate(['/']).then(() => displayAuthModal(router, dialog))
+      }
+
+      return val.state as boolean;
+    }),
+    catchError(() => {
+      router.navigate(['/']);
+      return of(false);
+    })
+  );
+};
+
+function displayAuthModal(router: Router, dialog: MatDialog){
   const dialogRef = dialog.open(AuthenticationDialogComponent, {
     //height: '40%',
     width: '300px',
