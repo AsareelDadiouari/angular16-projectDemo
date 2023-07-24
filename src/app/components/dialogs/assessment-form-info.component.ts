@@ -28,13 +28,18 @@ import { AssessmentForm } from "../../models/assessmentForm.model";
         <h3>Evaluation of the trainee's skills and clothing</h3>
         <div class="details">
           <p><strong>Demonstrate autonomy:</strong> {{ data.traineeSkillEval?.autonomy }}</p>
-          <p><strong>Capable of active listening:</strong> {{ data.traineeSkillEval?.activeListeningSkills }}</p>
-          <p><strong>Demonstrates an ability to work in a team:</strong> {{ data.traineeSkillEval?.abilityToWork }}</p>
-          <p><strong>Demonstrates a good spirit of social adaptation:</strong> {{ data.traineeSkillEval?.socialAdaptation }}</p>
+          <p><strong>Capable of active listening:</strong> {{ data.traineeSkillEval?.activeListeningSkills }}
+          </p>
+          <p><strong>Demonstrates an ability to work in a
+            team:</strong> {{ data.traineeSkillEval?.abilityToWork }}</p>
+          <p><strong>Demonstrates a good spirit of social
+            adaptation:</strong> {{ data.traineeSkillEval?.socialAdaptation }}</p>
           <p><strong>Demonstrates initiative:</strong> {{ data.traineeSkillEval?.initiative }}</p>
           <p><strong>Show imagination:</strong> {{ data.traineeSkillEval?.imagination }}</p>
-          <p><strong>Demonstrates good analytical skills:</strong> {{ data.traineeSkillEval?.analyticalSkills }}</p>
-          <p><strong>Demonstrates skill in oral communication:</strong> {{ data.traineeSkillEval?.oralSkills }}</p>
+          <p><strong>Demonstrates good analytical skills:</strong> {{ data.traineeSkillEval?.analyticalSkills }}
+          </p>
+          <p><strong>Demonstrates skill in oral communication:</strong> {{ data.traineeSkillEval?.oralSkills }}
+          </p>
           <p><strong>Additional notes:</strong> {{ data.traineeSkillEval?.additionalInfo }}</p>
         </div>
       </div>
@@ -42,12 +47,18 @@ import { AssessmentForm } from "../../models/assessmentForm.model";
       <div class="section">
         <h3>Assessment of trainee knowledge</h3>
         <div class="details">
-          <p><strong>Mastering written communication:</strong> {{ data.traineeKnowledge?.writtenCommunicationSkills }}</p>
-          <p><strong>Knows his field of specialization well:</strong> {{ data.traineeKnowledge?.fieldOfSpecialization }}</p>
-          <p><strong>Is able to assume the responsibilities related to his task:</strong> {{ data.traineeKnowledge?.assumeResponsibilities }}</p>
-          <p><strong>Is able to produce the requested documents:</strong> {{ data.traineeKnowledge?.produceRequestedDocs }}</p>
-          <p><strong>Is able to make recommendations:</strong> {{ data.traineeKnowledge?.makeRecommendations }}</p>
-          <p><strong>Is able to popularize the terminology:</strong> {{ data.traineeKnowledge?.popularizeTerminology }}</p>
+          <p><strong>Mastering written
+            communication:</strong> {{ data.traineeKnowledge?.writtenCommunicationSkills }}</p>
+          <p><strong>Knows his field of specialization
+            well:</strong> {{ data.traineeKnowledge?.fieldOfSpecialization }}</p>
+          <p><strong>Is able to assume the responsibilities related to his
+            task:</strong> {{ data.traineeKnowledge?.assumeResponsibilities }}</p>
+          <p><strong>Is able to produce the requested
+            documents:</strong> {{ data.traineeKnowledge?.produceRequestedDocs }}</p>
+          <p><strong>Is able to make recommendations:</strong> {{ data.traineeKnowledge?.makeRecommendations }}
+          </p>
+          <p><strong>Is able to popularize the
+            terminology:</strong> {{ data.traineeKnowledge?.popularizeTerminology }}</p>
           <p><strong>Additional notes:</strong> {{ data.traineeKnowledge?.additionalInfo }}</p>
         </div>
       </div>

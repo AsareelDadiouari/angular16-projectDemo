@@ -16,10 +16,10 @@ import {
   flatMap,
   forkJoin,
   from,
-  map,
+  map, merge,
   mergeMap,
   Observable,
-  of,
+  of, scan,
   switchMap,
   take,
   tap,
@@ -247,6 +247,19 @@ export class BackendService {
     return from(this.db.database.ref("assessment/" + assessment.id).update(options.removeUndefinedProperties(assessment)))
   }
 
+  getInternByPermanentCode(code: string){
+    return this.db.list<Intern>("intern", ref => ref.orderByChild("code").equalTo(code)).valueChanges().pipe(
+      map(values => values.find(value => value.code === code))
+    );
+  }
+
+  getSupervisorByPermanentCode(code: string){
+    return combineLatest([this.db.list<Supervisor>("supervisor/professors", ref => ref.orderByChild("code").equalTo(code)).valueChanges(),
+      this.db.list<Supervisor>("supervisor/headmaster", ref => ref.orderByChild("code").equalTo(code)).valueChanges()]).pipe(
+        map((values) => values[0].concat(values[1]).find(value => value.code === code))
+    )
+  }
+
   updateAssessmentCode(id : string, code: string){
     return from(this.db.database.ref("assessment/" + id).update({
       internshipGeneratedCode: code
@@ -283,6 +296,7 @@ export class BackendService {
   }
 
   //-------------------------------------------------------------------------------
+
 
   private codeGen(user: Supervisor | Partial<Intern>): string{
     return (

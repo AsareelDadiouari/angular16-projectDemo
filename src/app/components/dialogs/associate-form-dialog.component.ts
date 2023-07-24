@@ -24,12 +24,13 @@ export class AssociateFormDialogComponent implements OnInit{
   constructor(@Inject(MAT_DIALOG_DATA) public data : AssessmentForm | undefined) {
     effect(() => {
       if (!this.backendService.authenticated().state){
-        this.dialogRef.close();
+        //this.dialogRef.close();
       }
     });
   }
 
   ngOnInit(): void {
+    console.log(this.data)
   }
 
   submitClicked(data : AssessmentForm){

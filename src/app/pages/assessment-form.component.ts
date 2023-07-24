@@ -1,9 +1,32 @@
-import {AfterContentInit, Component, computed, effect, inject, LOCALE_ID, OnInit, ViewChild} from '@angular/core';
+import {
+  AfterContentInit,
+  AfterViewInit,
+  Component,
+  computed,
+  effect,
+  inject,
+  LOCALE_ID,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {LocalizationService} from "../services/localization.service";
 import {BackendService} from "../services/backend.service";
 import {Intern} from "../models/intern";
-import {concatMap, filter, find, forkJoin, from, map, of, startWith, switchMap, take, tap} from 'rxjs';
+import {
+  combineLatestWith,
+  concatMap,
+  filter,
+  find,
+  forkJoin,
+  from,
+  map,
+  of,
+  startWith,
+  switchMap,
+  take,
+  tap
+} from 'rxjs';
 import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 import {MatOption} from "@angular/material/core";
 import {MatAutocomplete} from "@angular/material/autocomplete";
@@ -13,6 +36,7 @@ import {AssociateFormDialogComponent} from "../components/dialogs/associate-form
 import {NotificationService} from "../services/notification.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import options from "../options";
+import {combineLatest} from "rxjs/internal/operators/combineLatest";
 
 @Component({
   selector: 'app-assessment-form',
@@ -27,6 +51,7 @@ import options from "../options";
           <div class="form-group">
             <mat-form-field appearance="outline">
               <mat-label i18n for="permanentCode">Permanent Code : </mat-label>
+              <mat-error *ngIf="this.markErrorStudentCode">Unrecognized Permanent code.</mat-error>
               <input type="text" id="permanentCode" formControlName="permanentCode" [matAutocomplete]="auto" matInput>
               <mat-autocomplete #matAutocompleteStudentCode (optionSelected)="onOptionSelected($event)" #auto="matAutocomplete">
                 <mat-option *ngFor="let student of students()" [value]="student.code">
@@ -310,6 +335,7 @@ import options from "../options";
             <mat-form-field>
               <mat-label for="Code">Code</mat-label>
               <input type="text" id="code" formControlName="code" matInput>
+              <mat-error *ngIf="this.markErrorSupervisorCode">Unrecognized Permanent code.</mat-error>
             </mat-form-field>
           </div>
 
@@ -339,7 +365,7 @@ import options from "../options";
       </mat-step>
 
     </mat-stepper>
-    <button [disabled]="studentInfoForm.invalid" class="submit-button" mat-raised-button color="primary" (click)="submitForm()">Submit</button>
+    <button [disabled]="studentInfoForm.invalid && supervisorForm.invalid" class="submit-button" mat-raised-button color="primary" (click)="submitForm()">Submit</button>
   `,
   styles: [`
     .container {
@@ -392,7 +418,7 @@ import options from "../options";
   `],
   providers: [{ provide: LOCALE_ID, useValue: 'en-US' }]
 })
-export class AssessmentFormComponent implements AfterContentInit{
+export class AssessmentFormComponent implements AfterContentInit, AfterViewInit{
   fb = inject(FormBuilder);
   translationService = inject(LocalizationService);
   backendService = inject(BackendService);
@@ -406,6 +432,9 @@ export class AssessmentFormComponent implements AfterContentInit{
   updateMode =  this.activatedRoute.snapshot.paramMap.get('id?') !== null;
   @ViewChild("matAutocompleteStudentCode") matAutocompleteStudentCode!: MatAutocomplete
 
+  markErrorStudentCode: boolean = false;
+  markErrorSupervisorCode: boolean = false;
+
   constructor() {
     effect(() => {
       this.supervisorForm.get("code")?.setValue(this.userInfo().state ? this.userInfo().value.code : '');
@@ -418,6 +447,48 @@ export class AssessmentFormComponent implements AfterContentInit{
       this.studentInfoForm.get("permanentCode")?.setValue(this.userInfo().state ? this.studentInfoForm.get("permanentCode")!.value : '');
 
       !this.backendService.authenticated().state && this.updateMode ? this.router.navigate(['/']) : '';
+    })
+  }
+
+  ngAfterViewInit() {
+    this.studentInfoForm.controls.permanentCode.valueChanges.subscribe(value => {
+      if(this.studentInfoForm.controls.permanentCode.valid){
+        this.backendService.getInternByPermanentCode(options.getValueOrThrow(this.studentInfoForm.get('permanentCode')?.value)).subscribe(value => {
+          if (value === undefined){
+            this.markErrorStudentCode = true;
+            this.studentInfoForm.controls.permanentCode.setErrors({customError:true});
+            this.studentInfoForm.controls.lastname.reset();
+            this.studentInfoForm.controls.firstname.reset();
+
+          } else {
+            this.markErrorStudentCode = false;
+            this.studentInfoForm.controls.lastname.setValue(value.lastname);
+            this.studentInfoForm.controls.firstname.setValue(value.firstname);
+          }
+        })
+      }
+    })
+
+    this.supervisorForm.controls.code.valueChanges.subscribe(value => {
+      if (this.supervisorForm.controls.code.valid){
+        this.backendService.getSupervisorByPermanentCode(options.getValueOrThrow(this.supervisorForm.get('code')?.value)).subscribe(value => {
+
+          if(value === undefined){
+            this.markErrorSupervisorCode = true;
+            this.supervisorForm.controls.code.setErrors({customError:true});
+
+            this.supervisorForm.controls.lastname.reset();
+            this.supervisorForm.controls.firstname.reset();
+            this.supervisorForm.controls.email.reset();
+          } else {
+            this.markErrorSupervisorCode = false;
+
+            this.supervisorForm.controls.lastname.setValue(value.lastname);
+            this.supervisorForm.controls.firstname.setValue(value.firstname);
+            this.supervisorForm.controls.email.setValue(value.email);
+          }
+        })
+      }
     })
   }
 
@@ -549,13 +620,16 @@ export class AssessmentFormComponent implements AfterContentInit{
 
   submitForm() {
     const form = {
-      supervisor: this.userInfo().value,
-      studentIntern : this.selectedStudent === undefined ? this.assessmentFormRouter?.studentIntern : this.selectedStudent,
+      supervisor: this.userInfo().state ? this.userInfo().value : this.supervisorForm.getRawValue(),
+      studentIntern : this.userInfo().state ? this.selectedStudent === undefined ? this.assessmentFormRouter?.studentIntern : this.selectedStudent : { code: this.studentInfoForm.getRawValue().permanentCode, ...Object.assign({}, this.studentInfoForm.getRawValue()) },
       internshipRatingNote: this.internshipRatingNoteForm.getRawValue().internshipRatingNote as string,
       traineeSkillEval : this.traineeSkillEvalForm.getRawValue() as TraineeSkillEval,
       traineeKnowledge: this.traineeKnowledgeForm.getRawValue() as TraineeKnowledge,
       traineeGlobalEval: this.traineeGlobalEvalForm.getRawValue() as TraineeGlobalEval
     } as AssessmentForm;
+
+    if ((form.studentIntern as any).permanentCode)
+      delete (form.studentIntern as any).permanentCode
 
    if (this.updateMode){
      form.internshipGeneratedCode = this.assessmentFormRouter?.internshipGeneratedCode;
@@ -563,13 +637,13 @@ export class AssessmentFormComponent implements AfterContentInit{
 
     this.backendService.updateAssessment(form).subscribe(() => {
        this.notificationService.showSuccessNotification("Fiche d'évaluation Mise à jour");
-       this.router.navigate(['/'])
+       this.router.navigate(['/']);
 
-       this.internshipRatingNoteForm.reset()
-       this.traineeSkillEvalForm.reset()
-       this.traineeKnowledgeForm.reset()
-       this.traineeGlobalEvalForm.reset()
-       this.supervisorForm.reset()
+       this.internshipRatingNoteForm.reset();
+       this.traineeSkillEvalForm.reset();
+       this.traineeKnowledgeForm.reset();
+       this.traineeGlobalEvalForm.reset();
+       this.supervisorForm.reset();
      });
    } else {
      const dialogRef = this.dialog.open(AssociateFormDialogComponent, {

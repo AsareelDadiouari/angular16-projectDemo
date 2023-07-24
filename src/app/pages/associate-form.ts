@@ -14,6 +14,7 @@ import {Professor} from "../models/professor.model";
 import {Headmaster} from "../models/headmaster.model";
 import {NotificationService} from "../services/notification.service";
 import {Router} from "@angular/router";
+import options from "../options";
 
 @Component({
   selector: 'app-associate-form',
@@ -28,9 +29,9 @@ import {Router} from "@angular/router";
             <mat-autocomplete #matAutocompleteStudentCode (optionSelected)="onOptionSelected($event)"
                               #auto="matAutocomplete">
 
-              <div *ngIf="dataFromDialog; else normal">
-                <mat-option [value]="dataFromDialog.studentIntern.code">
-                  {{dataFromDialog.studentIntern.code}}
+              <div *ngIf="_dataFromDialog; else normal">
+                <mat-option [value]="_dataFromDialog.studentIntern.code">
+                  {{_dataFromDialog.studentIntern.code}}
                 </mat-option>
               </div>
               <ng-template #normal>
@@ -120,14 +121,27 @@ export class AssociateForm implements OnInit{
   selectedStudent?: Intern;
   @ViewChild("matAutocompleteStudentCode") matAutocompleteStudentCode!: MatAutocomplete;
   @ViewChild("YearMatSelect") yearMatSelect!: MatOption;
-  @Input() dataFromDialog!: AssessmentForm | undefined;
+  @Input()
+  set dataFromDialog(data: AssessmentForm | undefined){
+    this._dataFromDialog = options.getValueOrThrow(data);
+
+    if (this._dataFromDialog.studentIntern.code === undefined){
+      this._dataFromDialog.studentIntern.code = (this.dataFromDialog?.studentIntern as any).permanentCode
+    }
+
+    this.associateForm.controls.professorFullname.setValue(this._dataFromDialog?.supervisor.firstname + " " + this._dataFromDialog?.supervisor.lastname)
+  };
+  protected _dataFromDialog!: AssessmentForm | undefined;
   @Output() submitClicked = new EventEmitter<any>();
 
   inputDisable = false;
 
   constructor() {
     effect(() => {
-      !this.backendService.authenticated().state ? this.router.navigate(['/']) : '';
+      //!this.backendService.authenticated().state ? this.router.navigate(['/']) : '';
+      if (this.userInfo().value){
+        this.associateForm.controls.professorFullname.setValue( this.userInfo().value.firstname + " " + this.userInfo().value.lastname);
+      }
     })
   }
 
@@ -137,7 +151,7 @@ export class AssociateForm implements OnInit{
 
   associateForm = this.fb.group({
     permanentCode : ['', Validators.required],
-    professorFullname : [this.userInfo().value.firstname + " " + this.userInfo().value.lastname],
+    professorFullname : [''],
     internshipTerm : ['', Validators.required],
     internshipNumber : ['', Validators.required]
   })
@@ -184,25 +198,15 @@ export class AssociateForm implements OnInit{
   }
 
   submitForm() {
-   if (this.dataFromDialog){
+   if (this._dataFromDialog){
      this.submitClicked.emit({
        internshipGeneratedCode : this.internCodeGeneration(),
      }as AssessmentForm);
    }else {
      this.backendService.createAssessmentForm({
        internshipGeneratedCode : this.internCodeGeneration(),
-       studentIntern : this.selectedStudent,
-       supervisor : (() => {
-         const userData = localStorage.getItem('auth');
-         if (userData) {
-           try {
-             const user = JSON.parse(userData);
-             return user.user
-           } catch (error) {
-             console.error('Error parsing user data from local storage:', error);
-           }
-         }
-       })()
+       studentIntern : this.selectedStudent === undefined ? (this._dataFromDialog as AssessmentForm | undefined)?.studentIntern : this.selectedStudent,
+       supervisor : this.getSupervisorFromLocalStorage() === undefined ? (this._dataFromDialog as AssessmentForm | undefined)?.supervisor : this.getSupervisorFromLocalStorage()
      }as AssessmentForm).subscribe(result => {
        this.notificationService.showSuccessNotification("Etudiant associé avec succès");
        this.associateForm.controls.permanentCode.reset();
@@ -218,5 +222,17 @@ export class AssociateForm implements OnInit{
       (Math.floor(Math.random() * (99 - 1 + 1)) + 1).toString().padStart(2, '0') +
       this.associateForm.controls.professorFullname.value!.split(' ').map(word => word.charAt(0)).join('') +
       this.associateForm.controls.permanentCode.value!.slice(0, 3);
+  }
+
+  private getSupervisorFromLocalStorage(){
+    const userData = localStorage.getItem('auth');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        return user.user
+      } catch (error) {
+        console.error('Error parsing user data from local storage:', error);
+      }
+    }
   }
 }
