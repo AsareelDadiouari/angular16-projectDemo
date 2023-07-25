@@ -2,16 +2,17 @@ import {Intern} from "./intern";
 import {Supervisor} from "./supervisor.model";
 
 export type AssessmentForm = {
-  id: string
+  id?: string
+  internshipGeneratedCode? : string
   studentIntern : Intern
-  internshipRatingNote: string
-  traineeSkillEval: TraineeSkillEval
-  traineeKnowledge : TraineeKnowledge
-  traineeGlobalEval : TraineeGlobalEval
+  internshipRatingNote?: string
+  traineeSkillEval?: TraineeSkillEval
+  traineeKnowledge?: TraineeKnowledge
+  traineeGlobalEval?: TraineeGlobalEval
   supervisor : Supervisor
 };
 
-interface TraineeSkillEval {
+export interface TraineeSkillEval {
   autonomy : string
   activeListeningSkills : string
   abilityToWork : string
@@ -23,7 +24,7 @@ interface TraineeSkillEval {
   additionalInfo : string
 }
 
-interface TraineeKnowledge {
+export interface TraineeKnowledge {
   writtenCommunicationSkills : string,
   fieldOfSpecialization : string
   assumeResponsibilities : string
@@ -33,7 +34,7 @@ interface TraineeKnowledge {
   additionalInfo : string
 }
 
-interface TraineeGlobalEval {
+export interface TraineeGlobalEval {
   rating : string,
   additionalInfo : string
 }
