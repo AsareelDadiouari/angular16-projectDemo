@@ -43,6 +43,7 @@ import {AssessmentTemplateComponent} from "./components/assessment-template.comp
 import {MatCardModule} from "@angular/material/card";
 import {AssociateFormDialogComponent} from "./components/dialogs/associate-form-dialog.component";
 import {AssessmentFormInfoComponent} from "./components/dialogs/assessment-form-info.component";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 @NgModule({
   declarations: [
@@ -91,6 +92,7 @@ import {AssessmentFormInfoComponent} from "./components/dialogs/assessment-form-
     MatAutocompleteModule,
     MatCheckboxModule,
     MatCardModule,
+    MatTooltipModule,
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'en' },

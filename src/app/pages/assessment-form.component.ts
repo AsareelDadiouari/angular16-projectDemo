@@ -399,13 +399,15 @@ import {combineLatest} from "rxjs/internal/operators/combineLatest";
       width: 100%;
     }
 
+
+
     .form-group {
       margin-bottom: 20px;
     }
 
     .submit-button {
-      text-align: center;
       margin-top: 20px;
+      float: right;
     }
 
     .number {

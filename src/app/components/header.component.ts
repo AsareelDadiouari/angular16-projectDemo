@@ -38,7 +38,7 @@ import {NotificationService} from "../services/notification.service";
       <button *ngIf="!this.backendService.authenticated().state; else Name" type="button" mat-stroked-button
               color="white" (click)="handleAuthButton()" class="auth-button">Authentication
       </button>
-      <ng-template style="margin-right: 100px" #Name>Bonjour {{_name}}</ng-template>
+      <ng-template style="margin-right: 100px" #Name>{{_name}}</ng-template>
 
       <button *ngIf="this.backendService.authenticated().state"
               (click)="logout()"
@@ -126,7 +126,7 @@ export class HeaderComponent implements OnInit{
 
   constructor() {
     effect(() => {
-      this._name = this.userInfo().value?.firstname + " " + this.userInfo().value?.lastname?.toUpperCase()
+      this._name = this.userInfo().value?.firstname + "," + this.userInfo().value?.lastname?.toUpperCase()
     })
   }
 
