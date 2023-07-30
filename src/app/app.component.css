@@ -2,16 +2,14 @@
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 14px;
   color: #333;
-
 }
 
 .content {
   display: flex;
    margin: 82px auto 32px;
-
   /* padding: 0 16px;*/
   /*max-width: 960px;*/
-  /*flex-direction: column;*/
+  flex-direction: column;
   align-items: center;
   height: auto;
   /*min-height: 87vh;*/
@@ -245,7 +243,8 @@ width: 1920px;
 
 .example-sidenav {
   width: 250px;
-  background-color: #cecece;
+  background-color: #ffffff;
+  color: black;
 }
 
 .mat-drawer-content {
@@ -274,7 +273,7 @@ width: 1920px;
 }
 
 .mat-list-item.router-link-active {
-  background-color: #CCCCCC;
+  background-color: #000000;
   color: #FFFFFF;
 }
 

@@ -32,6 +32,7 @@ import {AngularFireAuth} from "@angular/fire/compat/auth";
 import {AssessmentForm} from "../models/assessmentForm.model";
 import {reauthenticateWithCredential} from "@angular/fire/auth";
 import options from "../options";
+import firebase from "firebase/compat";
 
 
 @Injectable({
@@ -45,6 +46,7 @@ export class BackendService {
   notificationService = inject(NotificationService);
   router = inject(Router);
   http = inject(HttpClient);
+  fbUser!: firebase.User | null;
 
   authenticated= signal({
     value : this.getUserFromLocal()[0],
@@ -52,6 +54,9 @@ export class BackendService {
   })
 
   constructor() {
+    this.fbAuth.user.subscribe(user => {
+      this.fbUser = user;
+    })
   }
 
   createSupervisor(supervisor: Professor | Headmaster){
@@ -165,50 +170,41 @@ export class BackendService {
   }
 
   changePassword(changePasswordForm: any){
-    return combineLatest([this.db.list<Supervisor>("supervisor/professors", (ref) => {
-      return ref.orderByChild("email").equalTo(changePasswordForm.email)
-        .ref.orderByChild("password").equalTo(changePasswordForm.currentPassword);
-    }).valueChanges(),
-      this.db.list<Supervisor>("supervisor/headmaster", (ref) => {
-        return ref.orderByChild("email").equalTo(changePasswordForm.email)
-          .ref.orderByChild("password").equalTo(changePasswordForm.currentPassword);
-      }).valueChanges()
+    return combineLatest([this.credentialsCheck("supervisor/professors", changePasswordForm.email, changePasswordForm.currentPassword),
+      this.credentialsCheck("supervisor/headmaster", changePasswordForm.email, changePasswordForm.currentPassword),
     ]).pipe(
-      mergeMap(([value1, value2]) => {
-        return  [
-          ...value1.map((value) => ({ ...value, source: "value1" })),
-          ...value2.map((value) => ({ ...value, source: "value2" })),
-        ]
-          .filter(value => value.email === changePasswordForm.email)
-          .map(value => {
-          if (value.source === "value1"){
-            this.db.database.ref("supervisor/professors/" + value.id).update({
-              password : changePasswordForm.newPassword
-            }).then(res => {
-              this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.password).then(val=> {
-                return val.user?.updatePassword(changePasswordForm.newPassword);
-              }).then(_ => {
-                console.log("PROFESSORS");
-              })
-              this.notificationService.showSuccessNotification("Mot de passe a jour");
+      map(([value1, value2]) => {
+
+        let user: Supervisor | undefined = undefined
+        if (value1){
+           user = value1.find(val => val.email === changePasswordForm.email);
+          this.db.database.ref("supervisor/professors/" + user?.id).update({
+            password : changePasswordForm.newPassword
+          }).then(() => {
+            this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.currentPassword).then(value => {
+              this.fbUser?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Mot de passe a jour"));
             })
-          } else if (value.source === "value2"){
-            this.db.database.ref("supervisor/headmaster/" + value.id).update({
-              password : changePasswordForm.newPassword
-            }).then(res => {
-              this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.password).then(val=> {
-                return val.user?.updatePassword(changePasswordForm.newPassword);
-              }).then(_ => {
-                console.log("HEADMASTER");
-              })
-              this.notificationService.showSuccessNotification("Mot de passe a jour");
+
+            this.fbAuth.signOut();
+            return user;
+          })
+        }
+
+        if (value2){
+           user = value2.find(val => val.email === changePasswordForm.email);
+          this.db.database.ref("supervisor/headmaster/" + user?.id).update({
+            password : changePasswordForm.newPassword
+          }).then(() => {
+            this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.currentPassword).then(value => {
+              this.fbUser?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Mot de passe a jour"));
             })
-          }
-          return value;
-        });
-      }),
-      map(value => {
-        return value as Omit<Supervisor, "password">
+
+            this.fbAuth.signOut();
+            return user;
+          })
+        }
+
+        return user;
       })
     )
   }
@@ -313,14 +309,10 @@ export class BackendService {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  private getUserType(user: any): string {
-    if (user.headmaster) {
-      return 'headmaster';
-    } else if (user.professors) {
-      return 'professors';
-    } else {
-      return 'unknown';
-    }
+  private credentialsCheck(path: string, email: string, password: string): Observable<Supervisor[]>{
+    return this.db.list<Supervisor>(path, ref =>
+      ref.orderByChild('email').equalTo(email)
+        .ref.orderByChild('password').equalTo(password)).valueChanges();
   }
 
   public getUserFromLocal(){

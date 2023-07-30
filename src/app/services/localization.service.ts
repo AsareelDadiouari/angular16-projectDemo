@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import {inject, Injectable} from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { parseString } from 'xml2js';
+import {TranslateService} from "@ngx-translate/core";
 
 @Injectable({
   providedIn: 'root'
@@ -9,14 +10,24 @@ import { parseString } from 'xml2js';
 export class LocalizationService {
   private currentLanguage = 'fr'; // Default language
   private translations: any; // Object to store the loaded translation files
+  translationService = inject(TranslateService);
+  localesList = [
+    { code: 'en', label: 'English' },
+    { code: 'fr', label: 'Français' }
+  ];
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    this.translationService.setDefaultLang(this.localesList[0].code);
+    this.translationService.use(this.localesList[1].code);
+  }
 
   public setLanguage(language: string): void {
-    if (language !== this.currentLanguage) {
+    /*if (language !== this.currentLanguage) {
       this.currentLanguage = language;
       this.loadTranslationFile(language);
-    }
+    }*/
+    this.currentLanguage = language;
+    this.translationService.use(language);
   }
 
   public getLanguage(): string {

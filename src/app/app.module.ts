@@ -14,7 +14,7 @@ import {HomeComponent} from "./pages/home.component";
 import {AppRoutingModule} from "./app.routing.module";
 import {SafeHTMLPipe} from "./pipes/safeHTML.pipe";
 import {SafeBASE64Pipe} from "./pipes/safeBASE64.pipe";
-import {HTTP_INTERCEPTORS, HttpClientModule} from "@angular/common/http";
+import {HTTP_INTERCEPTORS, HttpClient, HttpClientModule} from "@angular/common/http";
 import {MatButtonToggleModule} from "@angular/material/button-toggle";
 import { HeaderComponent } from './components/header.component';
 import {AssessmentFormComponent} from "./pages/assessment-form.component";
@@ -44,6 +44,10 @@ import {MatCardModule} from "@angular/material/card";
 import {AssociateFormDialogComponent} from "./components/dialogs/associate-form-dialog.component";
 import {AssessmentFormInfoComponent} from "./components/dialogs/assessment-form-info.component";
 import {MatTooltipModule} from "@angular/material/tooltip";
+import {MatToolbarModule} from "@angular/material/toolbar";
+import {HttpLoaderFactory} from "./tanslate-loaders";
+import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
+import {MatMenuModule} from "@angular/material/menu";
 
 @NgModule({
   declarations: [
@@ -93,6 +97,11 @@ import {MatTooltipModule} from "@angular/material/tooltip";
     MatCheckboxModule,
     MatCardModule,
     MatTooltipModule,
+    MatToolbarModule,
+    TranslateModule.forRoot({
+      loader: {provide: TranslateLoader, useFactory: (HttpLoaderFactory), deps: [HttpClient]}
+    }),
+    MatMenuModule
   ],
   providers: [
     { provide: LOCALE_ID, useValue: 'en' },

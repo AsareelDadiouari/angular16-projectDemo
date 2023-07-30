@@ -7,8 +7,6 @@ import {BackendService} from "./services/backend.service";
 export class AuthInterceptor implements HttpInterceptor {
   backend = inject(BackendService);
   constructor() {
-    console.log("In the interceptor")
-    this.backend.fbAuth.user.subscribe(test => console.log(test))
   }
 
   intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -24,7 +22,6 @@ export class AuthInterceptor implements HttpInterceptor {
             withCredentials: true,
           });
         }
-        console.log("access", token);
         return next.handle(request);
       })
     );

@@ -4,7 +4,8 @@ import { registerLocaleData } from '@angular/common';
 import localeEn from '@angular/common/locales/en';
 import {BackendService} from "./services/backend.service";
 import {NotificationService} from "./services/notification.service";
-import {from} from "rxjs"; // Import locale data for English
+import {from} from "rxjs";
+import {TranslateService} from "@ngx-translate/core"; // Import locale data for English
 registerLocaleData(localeEn, 'en');
 
 @Component({
@@ -13,8 +14,7 @@ registerLocaleData(localeEn, 'en');
     <mat-drawer-container class="example-container" autosize>
       <mat-drawer #drawer class="example-sidenav" mode="side">
         <mat-list role="list">
-          <mat-list-item class="mat-list-item" i18n routerLink="/" role="listitem">Home</mat-list-item>
-          <mat-list-item class="mat-list-item" i18n role="listitem">List of trainee evaluations</mat-list-item>
+          <!--<mat-list-item class="mat-list-item" i18n role="listitem">List of trainee evaluations</mat-list-item>-->
         </mat-list>
       </mat-drawer>
 
@@ -31,12 +31,8 @@ registerLocaleData(localeEn, 'en');
   providers: [{ provide: LOCALE_ID, useValue: 'en-US' }]
 })
 export class AppComponent implements OnInit{
-  localesList = [
-    { code: 'en-US', label: 'English' },
-    { code: 'fr', label: 'Français' }
-  ];
-  backendService = inject(BackendService)
 
   ngOnInit() {
+
   }
 }

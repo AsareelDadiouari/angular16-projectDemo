@@ -365,7 +365,7 @@ import {combineLatest} from "rxjs/internal/operators/combineLatest";
       </mat-step>
 
     </mat-stepper>
-    <button [disabled]="studentInfoForm.invalid && supervisorForm.invalid" class="submit-button" mat-raised-button color="primary" (click)="submitForm()">Submit</button>
+    <button [disabled]="studentInfoForm.invalid || supervisorForm.invalid" class="submit-button" mat-raised-button color="primary" (click)="submitForm()">Submit</button>
   `,
   styles: [`
     .container {

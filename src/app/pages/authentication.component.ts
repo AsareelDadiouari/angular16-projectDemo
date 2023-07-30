@@ -139,6 +139,10 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
                   *ngIf="changePasswordForm.controls.newPassword.invalid && changePasswordForm.controls.newPassword.touched">
                   Please enter a new password.
                 </mat-error>
+                <mat-error
+                    *ngIf="changePasswordForm.controls.newPassword.invalid && changePasswordForm.controls.newPassword.errors!['minlength'] ">
+                  A minimum of 6 characters
+                </mat-error>
               </mat-form-field>
             </div>
             <button mat-raised-button color="primary" type="submit" [disabled]="changePasswordForm.invalid">Submit</button>
@@ -188,7 +192,7 @@ export class AuthenticationComponent {
 
   signUpForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', Validators.required, ],
+    password: ['', [Validators.required, Validators.minLength(6)]],
     firstname: ['', Validators.required],
     lastname: ['', Validators.required],
     role: ['', Validators.required],
@@ -196,8 +200,8 @@ export class AuthenticationComponent {
 
   changePasswordForm = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    currentPassword: ['', Validators.required, ],
-    newPassword: ['', Validators.required, ],
+    currentPassword: ['', Validators.required,],
+    newPassword: ['',  [Validators.required, Validators.minLength(6)]],
   })
 
   localLogin() {
@@ -242,7 +246,6 @@ export class AuthenticationComponent {
       email: this.changePasswordForm.controls.email.value?.toLowerCase(),
       ...this.changePasswordForm.getRawValue() as Pick<any, "currentPassword" | "newPassword">
     }).subscribe(value => {
-      console.log(value)
       this.displayChangePasswordTab = false;
       this.tabIsExpanded.emit(this.displayChangePasswordTab);
       this.tabGroup.selectedIndex = 0;
