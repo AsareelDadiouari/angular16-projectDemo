@@ -21,6 +21,7 @@ export class LocalizationService {
   constructor() {
     effect(() => {
       if (this.translatedMessage()){
+        console.log(this.translatedMessage() as string)
         this.translationService.get(this.translatedMessage() as string).subscribe(value => {
           this.translatedMessageSignal.set(value);
         })

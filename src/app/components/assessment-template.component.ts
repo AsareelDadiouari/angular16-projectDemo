@@ -1,4 +1,4 @@
-import {AfterContentInit, Component, inject, Input} from "@angular/core";
+import {AfterContentInit, Component, DestroyRef, inject, Input} from "@angular/core";
 import {AssessmentForm} from "../models/entities/assessmentForm.model";
 import {BackendService} from "../services/backend.service";
 import {MatDialog} from "@angular/material/dialog";
@@ -7,6 +7,7 @@ import options from "../utils";
 import {AssessmentFormInfoComponent} from "./dialogs/assessment-form-info.component";
 import {Router} from "@angular/router";
 import {LocalizationService} from "../services/localization.service";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
 @Component({
   selector: "app-assessment-template",
@@ -178,6 +179,8 @@ export class AssessmentTemplateComponent implements AfterContentInit {
   dialog = inject(MatDialog);
   userInfo = this.backendService.getAuthenticatedUser();
   @Input() assessment!: AssessmentForm;
+  destroyRef = inject(DestroyRef)
+
   codeEditMode: boolean = false;
   inputValue!: FormControl<string | null>;
   isProfessor: boolean = (this.backendService.getUserFromLocal()[0] as any).role === "Professor"
@@ -200,7 +203,7 @@ export class AssessmentTemplateComponent implements AfterContentInit {
   }
 
   changeCode() {
-    this.backendService.updateAssessmentCode(options.getValueOrThrow(this.assessment.id), options.getValueOrThrow(this.inputValue.getRawValue())).subscribe(() => {
+    this.backendService.updateAssessmentCode(options.getValueOrThrow(this.assessment.id), options.getValueOrThrow(this.inputValue.getRawValue())).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.codeEditMode = false;
     })
   }

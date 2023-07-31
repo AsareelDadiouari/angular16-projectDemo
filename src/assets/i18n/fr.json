@@ -51,5 +51,21 @@
   "Password updated" : "Mot de passe mis à jour",
   "Association code updated" : "Code d'association à jour",
   "Something went wrong" : "Une erreur s'est produite",
-  "Logged In": "Connexion réussi"
+  "Logged In": "Connexion réussi",
+  "Please enter a valid email." : "Please enter a valid email.",
+  "Password" : "Mot de passe",
+  "Please enter a password." : "Entrez un mot de passe valide",
+  "Login" : "Connexion",
+  "Click here to change your password." : "Cliquez pour changer de mot de passe",
+  "Please enter your first name." : "Veuillez entrer un prénom",
+  "Please enter your last name." : "Veuillez entrer un nom de famille",
+  "Role" : "Rôle",
+  "Please select at least one role." : "Veuillez selectionner un role",
+  "Admin" : "Administrateur",
+  "Sign Up" : "Inscription",
+  "Current Password" : "Mot de passe actuel",
+  "Please enter the current password." : "Veuillez entrer le mot de passe actuel",
+  "New Password" : "Nouveau mot de passe",
+  "Please enter a new password." : "Veuillez entrer un nouveau mot de passe",
+  "A minimum of 6 characters" : "6 caractères minimum"
 }

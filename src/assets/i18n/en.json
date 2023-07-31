@@ -51,5 +51,21 @@
   "Password updated" : "Password updated",
   "Association code updated" : "Association code updated",
   "Something went wrong" : "Something went wrong",
-  "Logged In": "Logging successful"
+  "Logged In": "Logging successful",
+  "Please enter a valid email." : "Please enter a valid email.",
+  "Password" : "Password",
+  "Please enter a password." : "Please enter a password.",
+  "Login" : "Login",
+  "Click here to change your password." : "Click here to change your password.",
+  "Please enter your first name." : "Please enter your first name.",
+  "Please enter your last name." : "Please enter your last name.",
+  "Role" : "Role",
+  "Please select at least one role." : "Please select at least one role.",
+  "Admin" : "Admin",
+  "Sign Up" : "Sign Up",
+  "Current Password" : "Current Password",
+  "Please enter the current password." : "Please enter the current password.",
+  "New Password" : "New Password",
+  "Please enter a new password." : "Please enter a new password.",
+  "A minimum of 6 characters" : "A minimum of 6 characters"
 }

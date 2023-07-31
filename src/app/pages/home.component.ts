@@ -1,15 +1,14 @@
-import {Component, effect, inject, LOCALE_ID, OnInit, signal} from "@angular/core";
+import {Component, DestroyRef, effect, inject, LOCALE_ID, OnInit, signal} from "@angular/core";
 import {AssessmentForm} from "../models/entities/assessmentForm.model";
 import {BackendService} from "../services/backend.service";
 import options from "../utils";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-landing-page',
   template: `
     <section class="main">
-      <div *ngIf="myAssessments()?.length === 0
-       && assessmentsCompleted().length === 0
-       && assessmentsIncomplete().length === 0; else assessmentList">
+      <div *ngIf="!backendService.authenticated().state ; else assessmentList">
         <h1 class="mat-display-4">{{'Intern evaluation sheet' | translate}}</h1>
         <img src="https://www.destinationuniversites.ca/wp-content/uploads/uqac.png" alt="image">
       </div>
@@ -23,7 +22,6 @@ import options from "../utils";
               <mat-divider></mat-divider>
               <div class="border-t border-gray-300 my-2 "></div>
               <div>
-                <!--<h1>Mes fiches d'évaluation</h1>-->
                   <div class="scroll-container flex overflow-x-auto pb-4">
                   <div *ngFor="let item of myAssessments()" class="item">
                     <app-assessment-template [assessment]="item"></app-assessment-template>
@@ -237,11 +235,12 @@ export class HomeComponent implements OnInit {
   myAssessments = signal<AssessmentForm[]>([]);
   userInfo = this.backendService.getAuthenticatedUser();
   isHeadMaster!: boolean;
+  destroyRef = inject(DestroyRef)
 
   constructor() {
     effect(() => {
       if (this.userInfo().state) {
-        this.backendService.getAssessments().subscribe(data => {
+        this.backendService.getAssessments().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(data => {
           if (this.userInfo().state && (this.backendService.getUserFromLocal()[0] as any).role === "Professor") {
             this.myAssessments.set(data.filter(value => value.supervisor.code === this.userInfo().value.code))
 

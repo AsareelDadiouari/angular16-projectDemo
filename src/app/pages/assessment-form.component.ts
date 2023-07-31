@@ -2,7 +2,7 @@ import {
   AfterContentInit,
   AfterViewInit,
   Component,
-  computed,
+  computed, DestroyRef,
   effect,
   inject,
   LOCALE_ID,
@@ -433,6 +433,7 @@ export class AssessmentFormComponent implements AfterContentInit, AfterViewInit{
   assessmentFormRouter: AssessmentForm | undefined;
   updateMode =  this.activatedRoute.snapshot.paramMap.get('id?') !== null;
   @ViewChild("matAutocompleteStudentCode") matAutocompleteStudentCode!: MatAutocomplete
+  destroyRef = inject(DestroyRef)
 
   markErrorStudentCode: boolean = false;
   markErrorSupervisorCode: boolean = false;
@@ -460,7 +461,7 @@ export class AssessmentFormComponent implements AfterContentInit, AfterViewInit{
   ngAfterViewInit() {
     this.studentInfoForm.controls.permanentCode.valueChanges.subscribe(value => {
       if(this.studentInfoForm.controls.permanentCode.valid){
-        this.backendService.getInternByPermanentCode(options.getValueOrThrow(this.studentInfoForm.get('permanentCode')?.value)).subscribe(value => {
+        this.backendService.getInternByPermanentCode(options.getValueOrThrow(this.studentInfoForm.get('permanentCode')?.value)).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
           if (value === undefined){
             this.markErrorStudentCode = true;
             this.studentInfoForm.controls.permanentCode.setErrors({customError:true});
@@ -478,7 +479,7 @@ export class AssessmentFormComponent implements AfterContentInit, AfterViewInit{
 
     this.supervisorForm.controls.code.valueChanges.subscribe(value => {
       if (this.supervisorForm.controls.code.valid){
-        this.backendService.getSupervisorByPermanentCode(options.getValueOrThrow(this.supervisorForm.get('code')?.value)).subscribe(value => {
+        this.backendService.getSupervisorByPermanentCode(options.getValueOrThrow(this.supervisorForm.get('code')?.value)).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
 
           if(value === undefined){
             this.markErrorSupervisorCode = true;
@@ -575,7 +576,7 @@ export class AssessmentFormComponent implements AfterContentInit, AfterViewInit{
       return []
     }),
     tap((value) => {
-      this.matAutocompleteStudentCode.optionSelected.subscribe(() => {
+      this.matAutocompleteStudentCode.optionSelected.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
           this.selectedStudent = value.find(val => val.code === this.studentInfoForm.controls['permanentCode'].value);
           if (this.selectedStudent){
             this.studentInfoForm.get('firstname')?.setValue(this.selectedStudent.firstname)
@@ -639,7 +640,7 @@ export class AssessmentFormComponent implements AfterContentInit, AfterViewInit{
      form.internshipGeneratedCode = this.assessmentFormRouter?.internshipGeneratedCode;
      form.id = options.getValueOrThrow(this.activatedRoute.snapshot.paramMap.get('id?'));
 
-    this.backendService.updateAssessment(form).subscribe(() => {
+    this.backendService.updateAssessment(form).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
        this.notificationService.showSuccessNotification("Fiche d'évaluation Mise à jour");
        this.router.navigate(['/']);
 
@@ -673,7 +674,7 @@ export class AssessmentFormComponent implements AfterContentInit, AfterViewInit{
        if (this.isObjectEmpty(form.traineeGlobalEval)){
          delete form.traineeGlobalEval;
        }
-       this.backendService.createAssessmentForm(form).subscribe( res => {
+       this.backendService.createAssessmentForm(form).pipe(takeUntilDestroyed(this.destroyRef)).subscribe( res => {
          this.notificationService.showSuccessNotification("Fiche d'évaluation créee");
          //this.studentInfoForm.reset()
          this.internshipRatingNoteForm.reset()

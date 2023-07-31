@@ -1,6 +1,6 @@
-import {Component, effect, EventEmitter, inject, Input, OnInit, Output, ViewChild} from "@angular/core";
+import {Component, DestroyRef, effect, EventEmitter, inject, Input, OnInit, Output, ViewChild} from "@angular/core";
 import {FormBuilder, Validators} from "@angular/forms";
-import {toSignal} from "@angular/core/rxjs-interop";
+import {takeUntilDestroyed, toSignal} from "@angular/core/rxjs-interop";
 import {Intern} from "../models/entities/intern";
 import {switchMap, tap} from "rxjs";
 import {BackendService} from "../services/backend.service";
@@ -133,6 +133,7 @@ export class AssociateForm implements OnInit{
   };
   protected _dataFromDialog!: AssessmentForm | undefined;
   @Output() submitClicked = new EventEmitter<any>();
+  destroyRef = inject(DestroyRef)
 
   inputDisable = false;
 
@@ -209,7 +210,7 @@ export class AssociateForm implements OnInit{
        internshipGeneratedCode : this.internCodeGeneration(),
        studentIntern : this.selectedStudent === undefined ? (this._dataFromDialog as AssessmentForm | undefined)?.studentIntern : this.selectedStudent,
        supervisor : this.getSupervisorFromLocalStorage() === undefined ? (this._dataFromDialog as AssessmentForm | undefined)?.supervisor : this.getSupervisorFromLocalStorage()
-     }as AssessmentForm).subscribe(result => {
+     }as AssessmentForm).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
        this.notificationService.showSuccessNotification("Etudiant associé avec succès");
        this.associateForm.controls.permanentCode.reset();
        this.associateForm.controls.internshipNumber.setValue("");

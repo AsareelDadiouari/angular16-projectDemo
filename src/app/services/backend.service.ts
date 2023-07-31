@@ -83,7 +83,11 @@ export class BackendService {
               })
             }).catch((err) => this.notificationService.showErrorNotification(err));
           }
-        })
+        }),
+          catchError(err => {
+            this.notificationService.showErrorNotification(err)
+            return throwError(() => err);
+          })
       )
   }
 
@@ -149,6 +153,7 @@ export class BackendService {
       }),
       catchError(err => {
         this.localStorageLogin(loginInfo);
+        this.notificationService.showErrorNotification("Incorrect password or email");
         return throwError(err)
       })
     );

@@ -1,4 +1,4 @@
-import {Component, computed, effect, inject, Input, OnInit} from '@angular/core';
+import {Component, computed, DestroyRef, effect, inject, Input, OnInit} from '@angular/core';
 import {MatDrawer} from "@angular/material/sidenav";
 import {MatButtonToggleChange} from "@angular/material/button-toggle";
 import {LocalizationService} from "../services/localization.service";
@@ -11,6 +11,7 @@ import {Headmaster} from "../models/entities/headmaster.model";
 import {Supervisor} from "../models/entities/supervisor.model";
 import {NotificationService} from "../services/notification.service";
 import {TranslateService} from "@ngx-translate/core";
+import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
 @Component({
   selector: 'app-header',
@@ -148,6 +149,8 @@ export class HeaderComponent implements OnInit{
     this.notificationService.toggleSpinner();
     setTimeout(() => this.notificationService.toggleSpinner(), 2000);
   }
+  destroyRef = inject(DestroyRef)
+
 
   protected _drawer!: MatDrawer;
   backendService = inject(BackendService);
@@ -178,8 +181,9 @@ export class HeaderComponent implements OnInit{
   }
 
   logout(){
-    this.backendService.firebaseLogOut().subscribe(() => {
-      this.backendService.localStorageLogout();
+    this.backendService.firebaseLogOut().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+      next: () => this.backendService.localStorageLogout(),
+      error: () => this.backendService.localStorageLogout(),
     })
   }
 }
