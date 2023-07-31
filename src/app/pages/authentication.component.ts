@@ -10,10 +10,10 @@ import {
 import {LocalizationService} from "../services/localization.service";
 import {FormBuilder, Validators} from "@angular/forms";
 import {BackendService} from "../services/backend.service";
-import {Supervisor} from "../models/supervisor.model";
-import {Professor} from "../models/professor.model";
-import {Headmaster} from "../models/headmaster.model";
-import {LoginModel} from "../models/login.model";
+import {Supervisor} from "../models/entities/supervisor.model";
+import {Professor} from "../models/entities/professor.model";
+import {Headmaster} from "../models/entities/headmaster.model";
+import {LoginModel} from "../models/entities/login.model";
 import {MatTabGroup} from "@angular/material/tabs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 
@@ -21,7 +21,7 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
   selector: 'app-login',
   template: `
     <mat-tab-group #Tab>
-      <mat-tab class="login" [label]="localizationService.getLanguage() === 'en' ? 'Login' : 'Connexion'">
+      <mat-tab class="login" [label]="localizationService.currentLanguage() === 'en' ? 'Login' : 'Connexion'">
         <form class="login-form" [formGroup]="loginForm" (submit)="localLogin()">
           <div class="form-group">
             <mat-form-field appearance="outline">
@@ -48,7 +48,7 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
         </form>
 
       </mat-tab>
-      <mat-tab class="signUp" [label]="localizationService.getLanguage() === 'en' ? 'SignUp' : 'Inscription'">
+      <mat-tab class="signUp" [label]="localizationService.currentLanguage() === 'en' ? 'SignUp' : 'Inscription'">
         <form class="signup-form" [formGroup]="signUpForm" (submit)="signUp()">
           <div class="form-group">
             <mat-form-field appearance="outline">
@@ -107,7 +107,7 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
         </form>
       </mat-tab>
       <ng-container *ngIf="displayChangePasswordTab">
-        <mat-tab [label]="localizationService.getLanguage() === 'en' ? 'Forget Password' : 'Mot de passe'">
+        <mat-tab [label]="localizationService.currentLanguage() === 'en' ? 'Forget Password' : 'Mot de passe'">
           <form class="newPassword-form" [formGroup]="changePasswordForm"  (submit)="submitNewPassword()">
             <div class="form-group">
               <mat-form-field appearance="outline">

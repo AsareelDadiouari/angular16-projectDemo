@@ -46,9 +46,10 @@ import {AssessmentFormInfoComponent} from "./components/dialogs/assessment-form-
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {MatToolbarModule} from "@angular/material/toolbar";
 import {HttpLoaderFactory} from "./tanslate-loaders";
-import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
+import {TranslateLoader, TranslateModule, TranslateService} from "@ngx-translate/core";
 import {MatMenuModule} from "@angular/material/menu";
-
+import {LocalizationService} from "./services/localization.service";
+import {BackendService} from "./services/backend.service";
 @NgModule({
   declarations: [
     AppComponent,

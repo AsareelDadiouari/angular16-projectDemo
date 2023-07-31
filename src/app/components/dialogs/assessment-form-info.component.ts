@@ -1,6 +1,6 @@
 import { Component, Inject, inject, Optional } from "@angular/core";
 import { MAT_DIALOG_DATA, MatDialogRef } from "@angular/material/dialog";
-import { AssessmentForm } from "../../models/assessmentForm.model";
+import { AssessmentForm } from "../../models/entities/assessmentForm.model";
 
 @Component({
   selector: 'app-assessment-form-info',

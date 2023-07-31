@@ -1,7 +1,7 @@
 import {Component, effect, inject, LOCALE_ID, OnInit, signal} from "@angular/core";
-import {AssessmentForm} from "../models/assessmentForm.model";
+import {AssessmentForm} from "../models/entities/assessmentForm.model";
 import {BackendService} from "../services/backend.service";
-import options from "../options";
+import options from "../utils";
 
 @Component({
   selector: 'app-landing-page',
@@ -10,7 +10,7 @@ import options from "../options";
       <div *ngIf="myAssessments()?.length === 0
        && assessmentsCompleted().length === 0
        && assessmentsIncomplete().length === 0; else assessmentList">
-        <h1 class="mat-display-4">Fiche d'evaluation Stagiaire</h1>
+        <h1 class="mat-display-4">{{'Intern evaluation sheet' | translate}}</h1>
         <img src="https://www.destinationuniversites.ca/wp-content/uploads/uqac.png" alt="image">
       </div>
 
@@ -19,7 +19,7 @@ import options from "../options";
         <ng-template #assessmentList>
           <div class="flex flex-row bg-gray-100 mb-4">
             <div class="custom-container">
-              <h3 style="color: #47597f" class="block text-gray-700 text-3xl font-bold mb-2 p-2">Mes fiches d'évaluations</h3>
+              <h3 style="color: #47597f" class="block text-gray-700 text-3xl font-bold mb-2 p-2">{{'My scorecards' | translate}}</h3>
               <mat-divider></mat-divider>
               <div class="border-t border-gray-300 my-2 "></div>
               <div>
@@ -35,7 +35,7 @@ import options from "../options";
 
           <div *ngIf="isHeadMaster" class="flex flex-row bg-gray-100 mb-4">
             <div class="custom-container">
-              <h3 style="color: #47597f" class="block text-gray-700 text-3xl font-bold mb-2 p-2">Autres fiches d'évaluation en cours</h3>
+              <h3 style="color: #47597f" class="block text-gray-700 text-3xl font-bold mb-2 p-2">{{'Other ongoing scorecards' | translate}}</h3>
               <mat-divider></mat-divider>
               <div class="border-t border-gray-300 my-2 "></div>
               <div >
@@ -53,7 +53,7 @@ import options from "../options";
 
             <div *ngIf="isHeadMaster" class="flex flex-row bg-gray-100 mb-4">
               <div class="custom-container">
-                <h3 style="color: #47597f" class="block text-gray-700 text-3xl font-bold mb-2 p-2">Autres fiches d'évaluation complétées</h3>
+                <h3 style="color: #47597f" class="block text-gray-700 text-3xl font-bold mb-2 p-2">{{'Other completed scorecards' | translate}}</h3>
                 <mat-divider></mat-divider>
                 <div class="border-t border-gray-300 my-2 "></div>
                 <div *ngIf="assessmentsCompleted().length > 0">

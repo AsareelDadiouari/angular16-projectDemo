@@ -1,4 +1,4 @@
-import {AssessmentForm} from "./models/assessmentForm.model";
+import {AssessmentForm} from "./models/entities/assessmentForm.model";
 
 function getValueOrThrow<T>(value: T | undefined | null): T {
   if (value === undefined || value === null) {

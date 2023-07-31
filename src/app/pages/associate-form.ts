@@ -1,7 +1,7 @@
 import {Component, effect, EventEmitter, inject, Input, OnInit, Output, ViewChild} from "@angular/core";
 import {FormBuilder, Validators} from "@angular/forms";
 import {toSignal} from "@angular/core/rxjs-interop";
-import {Intern} from "../models/intern";
+import {Intern} from "../models/entities/intern";
 import {switchMap, tap} from "rxjs";
 import {BackendService} from "../services/backend.service";
 import {MatAutocomplete, MatAutocompleteSelectedEvent} from "@angular/material/autocomplete";
@@ -9,22 +9,22 @@ import {MatSelect} from "@angular/material/select";
 import {MatOption} from "@angular/material/core";
 import {TranslateService} from "@ngx-translate/core";
 import {LocalizationService} from "../services/localization.service";
-import {AssessmentForm} from "../models/assessmentForm.model";
-import {Professor} from "../models/professor.model";
-import {Headmaster} from "../models/headmaster.model";
+import {AssessmentForm} from "../models/entities/assessmentForm.model";
+import {Professor} from "../models/entities/professor.model";
+import {Headmaster} from "../models/entities/headmaster.model";
 import {NotificationService} from "../services/notification.service";
 import {Router} from "@angular/router";
-import options from "../options";
+import options from "../utils";
 
 @Component({
   selector: 'app-associate-form',
   template: `
     <section>
-      <h2 class="mat-display-2">Associate a student</h2>
+      <h2 class="mat-display-2">{{'Associate a student' | translate}}</h2>
       <form [formGroup]="associateForm">
         <div class="form-group">
           <mat-form-field appearance="outline">
-            <mat-label for="permanentCode">Permanent Code :</mat-label>
+            <mat-label for="permanentCode">{{'Permanent Code' | translate}}</mat-label>
             <input type="text" id="permanentCode" formControlName="permanentCode" [matAutocomplete]="auto" matInput>
             <mat-autocomplete #matAutocompleteStudentCode (optionSelected)="onOptionSelected($event)"
                               #auto="matAutocomplete">
@@ -47,7 +47,7 @@ import options from "../options";
         <div class="form-group">
           <div class="horizontal-container">
             <mat-form-field appearance="outline">
-              <mat-label for="professorFullname">Professor</mat-label>
+              <mat-label for="professorFullname">{{'Professor' | translate}}</mat-label>
               <input type="text" id="professorFullname" formControlName="professorFullname" matInput>
             </mat-form-field>
             <button class="submit-button" mat-raised-button
@@ -59,21 +59,21 @@ import options from "../options";
         </div>
 
         <mat-form-field>
-          <mat-label>Year</mat-label>
+          <mat-label>{{'Year' | translate}}</mat-label>
           <mat-select formControlName="internshipNumber" appearance="outline">
             <mat-option #YearMatSelect *ngFor="let year of years" [value]="year">{{year}}</mat-option>
           </mat-select>
         </mat-form-field>
 
         <mat-form-field>
-          <mat-label>Term</mat-label>
+          <mat-label>{{'Term' | translate}}</mat-label>
           <mat-select formControlName="internshipTerm" appearance="outline">
             <mat-option *ngFor="let term of terms" [value]="term">{{term}}</mat-option>
           </mat-select>
         </mat-form-field>
       </form>
       <button [disabled]="associateForm.invalid" class="submit-button" mat-raised-button color="primary"
-              (click)="submitForm()">Submit
+              (click)="submitForm()">{{'Submit' | translate}}
       </button>
     </section>
 
@@ -142,6 +142,12 @@ export class AssociateForm implements OnInit{
       if (this.userInfo().value){
         this.associateForm.controls.professorFullname.setValue( this.userInfo().value.firstname + " " + this.userInfo().value.lastname);
       }
+
+      this.terms = [
+          this.localizationService.currentLanguage() === "en" ? "Winter" : "Hiver",
+          this.localizationService.currentLanguage() === "en" ? "Summer" : "Ete",
+          this.localizationService.currentLanguage() === "en" ? "Fall" : "Automne"
+      ];
     })
   }
 
@@ -161,11 +167,7 @@ export class AssociateForm implements OnInit{
     return Array.from({length: 21}, (_, i) => currentYear - 10 + i);
   })();
 
-  terms: string[] = [
-    this.localizationService.getLanguage() === "en" ? "Winter" : "Hiver",
-    this.localizationService.getLanguage() === "en" ? "Summer" : "Ete",
-    this.localizationService.getLanguage() === "en" ? "Fall" : "Automne"
-  ];
+  terms!: string[]
 
   students = toSignal<Intern[]>(this.associateForm.controls['permanentCode'].valueChanges.pipe(
     switchMap((value) => {

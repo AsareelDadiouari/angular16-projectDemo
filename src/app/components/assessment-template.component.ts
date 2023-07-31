@@ -1,11 +1,12 @@
 import {AfterContentInit, Component, inject, Input} from "@angular/core";
-import {AssessmentForm} from "../models/assessmentForm.model";
+import {AssessmentForm} from "../models/entities/assessmentForm.model";
 import {BackendService} from "../services/backend.service";
 import {MatDialog} from "@angular/material/dialog";
 import {FormControl} from "@angular/forms";
-import options from "../options";
+import options from "../utils";
 import {AssessmentFormInfoComponent} from "./dialogs/assessment-form-info.component";
 import {Router} from "@angular/router";
+import {LocalizationService} from "../services/localization.service";
 
 @Component({
   selector: "app-assessment-template",
@@ -27,29 +28,29 @@ import {Router} from "@angular/router";
             </span>
                   </ng-container>
                   <mat-icon class="completed-badge" *ngIf="options.formIsCompleted(this.assessment)"
-                            matTooltip="Completed Assessment">done_outline
+                            [matTooltip]="localizationService.currentLanguage() === 'en' ? 'Completed Assessment' : 'Formulaire complété'">done_outline
                   </mat-icon>
                   <mat-icon class="uncompleted-badge" [ngStyle]="{color: '#f5d60a'}" *ngIf="!options.formIsCompleted(this.assessment)"
-                            matTooltip="Incomplete Assessment">hourglass_empty
+                            [matTooltip]="localizationService.currentLanguage() === 'en' ? 'Incompleted Assessment' : 'Formulaire en cours'">hourglass_empty
                   </mat-icon>
                 </mat-card-title>
               </mat-card-header>
               <mat-card-content>
-                <p>Etudiant : {{assessment.studentIntern.firstname + " " + assessment.studentIntern.lastname}}</p>
-                <p>{{isHeadMaster ? "Professeur : " + assessment.supervisor.firstname + " " + assessment.supervisor.lastname : ""}}</p>
+                <p>{{'Student : ' | translate}}{{assessment.studentIntern.firstname + " " + assessment.studentIntern.lastname}}</p>
+                <p>{{isHeadMaster ? ("Professor : " | translate) + assessment.supervisor.firstname + " " + assessment.supervisor.lastname : ""}}</p>
               </mat-card-content>
               <mat-card-actions class="button-container">
                 <button (click)="fill()"
-                        matTooltip="Fill"
+                        [matTooltip]="localizationService.currentLanguage() === 'en' ? 'Fill' : 'Remplir'"
                         *ngIf="isProfessor || (isHeadMaster && this.assessment.supervisor?.code === this.userInfo().value.code)"
                         mat-button><mat-icon>keyboard</mat-icon>
                 </button>
                 <button (click)="infos()"
-                        matTooltip="Informations"
+                        [matTooltip]="localizationService.currentLanguage() === 'en' ? 'Informations' : 'Voir les informations'"
                         *ngIf="(isHeadMaster && this.assessment.supervisor?.code !== this.userInfo().value.code) || ((isProfessor || isHeadMaster) && options.formIsCompleted(this.assessment))"
                         mat-button
                         [ngClass]="{ 'right-align': options.formIsCompleted(this.assessment) && (this.assessment.supervisor.code === this.userInfo().value.code) }">
-                  <mat-icon  >info</mat-icon>
+                  <mat-icon>info</mat-icon>
                 </button>
               </mat-card-actions>
             </mat-card>
@@ -173,6 +174,7 @@ import {Router} from "@angular/router";
 })
 export class AssessmentTemplateComponent implements AfterContentInit {
   backendService = inject(BackendService);
+  localizationService = inject(LocalizationService);
   dialog = inject(MatDialog);
   userInfo = this.backendService.getAuthenticatedUser();
   @Input() assessment!: AssessmentForm;

@@ -2,7 +2,7 @@ import {Component, effect, EventEmitter, Inject, inject, OnInit, Optional, Outpu
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {AuthenticationComponent} from "../../pages/authentication.component";
 import {BackendService} from "../../services/backend.service";
-import {AssessmentForm} from "../../models/assessmentForm.model";
+import {AssessmentForm} from "../../models/entities/assessmentForm.model";
 import {AssociateForm} from "../../pages/associate-form";
 
 @Component({

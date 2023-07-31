@@ -6,15 +6,7 @@
     "SujetSpecial": {
       "projectType": "application",
       "i18n": {
-        "sourceLocale": "en-US",
-        "locales": {
-          "fr": {
-            "translation": "src/assets/locale/messages.fr.xlf"
-          },
-          "en": {
-            "translation": "src/assets/locale/messages.en.xlf"
-          }
-        }
+        "sourceLocale": "en-US"
       },
       "schematics": {},
       "root": "",
@@ -25,8 +17,6 @@
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
             "outputPath": "dist/sujet-special",
-            "localize": ["fr"],
-            "i18nMissingTranslation": "error",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": [
@@ -86,14 +76,6 @@
             }
           },
           "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
-          "options": {
-            "browserTarget": "SujetSpecial:build",
-            "format": "xlf",
-            "outputPath": "src/assets/locale/"
-          }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",

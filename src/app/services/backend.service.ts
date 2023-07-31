@@ -4,11 +4,11 @@ import { getAnalytics } from "firebase/analytics";
 import {computed, inject, Injectable, signal, Signal, WritableSignal} from "@angular/core";
 import {environment} from "../../environments/environment";
 import {AngularFireDatabase} from "@angular/fire/compat/database";
-import {Supervisor} from "../models/supervisor.model";
-import {Professor} from "../models/professor.model";
-import {Headmaster} from "../models/headmaster.model";
+import {Supervisor} from "../models/entities/supervisor.model";
+import {Professor} from "../models/entities/professor.model";
+import {Headmaster} from "../models/entities/headmaster.model";
 import {NotificationService} from "./notification.service";
-import {LoginModel} from "../models/login.model";
+import {LoginModel} from "../models/entities/login.model";
 import * as assert from "assert";
 import {Router} from "@angular/router";
 import {
@@ -27,12 +27,14 @@ import {
 } from "rxjs";
 import {toObservable, toSignal} from "@angular/core/rxjs-interop";
 import {HttpClient} from "@angular/common/http";
-import {Intern} from "../models/intern";
+import {Intern} from "../models/entities/intern";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
-import {AssessmentForm} from "../models/assessmentForm.model";
+import {AssessmentForm} from "../models/entities/assessmentForm.model";
 import {reauthenticateWithCredential} from "@angular/fire/auth";
-import options from "../options";
+import utils from "../utils";
 import firebase from "firebase/compat";
+import {LocalizationService} from "./localization.service";
+import {translate} from "@angular/localize/tools";
 
 
 @Injectable({
@@ -77,7 +79,7 @@ export class BackendService {
               id: pushRef.key
             }).then(() => {
               this.fbAuth.createUserWithEmailAndPassword(supervisor.email, <string>supervisor.password).then(r => {
-                this.notificationService.showSuccessNotification("Compte creer")
+                this.notificationService.showSuccessNotification("Account created successfully")
               })
             }).catch((err) => this.notificationService.showErrorNotification(err));
           }
@@ -89,7 +91,7 @@ export class BackendService {
     return this.db.list<Intern>("intern", ref => ref.orderByChild("code").equalTo(student.code)).valueChanges().pipe(
       tap((students: Intern[]) => {
         if (students.length > 0) {
-          this.notificationService.showErrorNotification("Code permanent existe deja");
+          this.notificationService.showErrorNotification("Permanent code already exist");
         } else {
           const pushRef = this.db.list("intern").push(student)
           pushRef.update({
@@ -117,7 +119,7 @@ export class BackendService {
 
           this.authenticated.set({value: headmasterArray[index], state: true});
           localStorage.setItem('auth', JSON.stringify({user: headmasterArray[index], role: "Headmaster"}));
-          this.notificationService.showSuccessNotification("Connexion Reussi");
+          this.notificationService.showSuccessNotification("Logged In");
           return;
         }
       }
@@ -132,11 +134,11 @@ export class BackendService {
 
           this.authenticated.set({value: professorArray[index], state: true});
           localStorage.setItem('auth', JSON.stringify({user: professorArray[index], role: "Professor"}));
-          this.notificationService.showSuccessNotification("Connexion Reussi");
+          this.notificationService.showSuccessNotification("Logged In");
           return;
         }
       }
-      this.notificationService.showErrorNotification("Email ou mot de passe incorrect");
+      this.notificationService.showErrorNotification("Incorrect password or email");
     }).catch((err) => this.notificationService.showErrorNotification(err));
   }
 
@@ -158,7 +160,7 @@ export class BackendService {
       value.state = false;
       return value;
     });
-    this.notificationService.showSuccessNotification("Deconnexion Reussi");
+    this.notificationService.showSuccessNotification("Logged out");
     localStorage.removeItem('auth');
     localStorage.removeItem('refreshToken');
 
@@ -182,11 +184,8 @@ export class BackendService {
             password : changePasswordForm.newPassword
           }).then(() => {
             this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.currentPassword).then(value => {
-              this.fbUser?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Mot de passe a jour"));
-            })
-
-            this.fbAuth.signOut();
-            return user;
+              this.fbUser?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Password updated"));
+            }).finally(() => this.fbAuth.signOut())
           })
         }
 
@@ -196,11 +195,8 @@ export class BackendService {
             password : changePasswordForm.newPassword
           }).then(() => {
             this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.currentPassword).then(value => {
-              this.fbUser?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Mot de passe a jour"));
-            })
-
-            this.fbAuth.signOut();
-            return user;
+              this.fbUser?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Password updated"));
+            }).finally(() => this.fbAuth.signOut())
           })
         }
 
@@ -240,7 +236,7 @@ export class BackendService {
   }
 
   updateAssessment(assessment: AssessmentForm): Observable<void>{
-    return from(this.db.database.ref("assessment/" + assessment.id).update(options.removeUndefinedProperties(assessment)))
+    return from(this.db.database.ref("assessment/" + assessment.id).update(utils.removeUndefinedProperties(assessment)))
   }
 
   getInternByPermanentCode(code: string){
@@ -260,9 +256,9 @@ export class BackendService {
     return from(this.db.database.ref("assessment/" + id).update({
       internshipGeneratedCode: code
     })).pipe(
-      tap(_ => this.notificationService.showSuccessNotification("Code modifié")),
+      tap(_ => this.notificationService.showSuccessNotification("Association code updated")),
       catchError(err => {
-        this.notificationService.showErrorNotification("something is wrong")
+        this.notificationService.showErrorNotification("Something went wrong")
         return throwError(err);
       })
     )

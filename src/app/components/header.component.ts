@@ -6,9 +6,9 @@ import {MatDialog} from "@angular/material/dialog";
 import {AuthenticationDialogComponent} from "./dialogs/authentication-dialog.component";
 import {Router} from "@angular/router";
 import {BackendService} from "../services/backend.service";
-import {Professor} from "../models/professor.model";
-import {Headmaster} from "../models/headmaster.model";
-import {Supervisor} from "../models/supervisor.model";
+import {Professor} from "../models/entities/professor.model";
+import {Headmaster} from "../models/entities/headmaster.model";
+import {Supervisor} from "../models/entities/supervisor.model";
 import {NotificationService} from "../services/notification.service";
 import {TranslateService} from "@ngx-translate/core";
 
@@ -18,7 +18,7 @@ import {TranslateService} from "@ngx-translate/core";
     <header>
       <!-- Toolbar -->
       <mat-toolbar class="toolbar" color="primary">
-        <button mat-icon-button (click)="_drawer.toggle()" type="button">
+        <button [hidden]="true" mat-icon-button (click)="_drawer.toggle()" type="button">
           <mat-icon *ngIf="!_drawer.opened">chevron_right</mat-icon>
           <mat-icon *ngIf="_drawer.opened">chevron_left</mat-icon>
         </button>
@@ -30,7 +30,7 @@ import {TranslateService} from "@ngx-translate/core";
           style="margin-left: 15px"
           mat-button
         >
-          File an evaluation
+            {{'File an evaluation' | translate}}
         </button>
         <button
           *ngIf="this.backendService.authenticated().state;"
@@ -38,26 +38,33 @@ import {TranslateService} from "@ngx-translate/core";
           style="margin-left: 15px"
           mat-button
         >
-          Generate a code for a student
+            {{'Generate a code for a student' | translate}}
         </button>
 
         <div class="spacer"></div>
 
-          <mat-icon [matTooltip]="localizationService.getLanguage() === 'fr' ? 'Connexion' : 'Authentication'" style="font-size: 24px; margin-right: 25px" (click)="handleAuthButton()" *ngIf="!this.backendService.authenticated().state; else Name" class="text-3xl auth-button">person</mat-icon>
-          <ng-template style="margin-right: 100px" #Name>{{ _name }}</ng-template>
+          <mat-icon [matTooltip]="localizationService.currentLanguage() === 'fr' ? 'Connexion' : 'Authentication'" style="font-size: 24px; margin-right: 25px" (click)="handleAuthButton()" *ngIf="!this.backendService.authenticated().state" class="text-3xl">person</mat-icon>
 
-        <button
-          *ngIf="this.backendService.authenticated().state"
-          (click)="logout()"
-          type="button"
-          mat-button
-          class="auth-button"
-        >
-          Logout
-        </button>
+          <button *ngIf="backendService.authenticated().state" mat-button style="margin-right: 10px" [matMenuTriggerFor]="userMenu" #Name>
+              <mat-icon style="margin-right: 15px">person</mat-icon>
+              <span style="margin-right: 1px; margin-top: 25px">{{ _name }}</span>
+          </button>
+
+          <mat-menu #userMenu="matMenu">
+              <button
+                      *ngIf="this.backendService.authenticated().state"
+                      (click)="logout()"
+                      type="button"
+                      mat-menu-item
+                      class="logout-button"
+              >
+                  {{'Logout' | translate}}
+              </button>
+          </mat-menu>
+
 
           <span style="margin-right: 10px" class="mx-2">|</span>
-          <a [matMenuTriggerFor]="menuLanguage" class="mat-title m-0 cursor-pointer">{{ localizationService.getLanguage().toUpperCase() }}</a>
+          <a [matMenuTriggerFor]="menuLanguage" class="mat-title m-0 cursor-pointer">{{localizationService.currentLanguage().toUpperCase() }}</a>
           <mat-menu #menuLanguage="matMenu">
               <button mat-menu-item (click)="localizationService.setLanguage('fr')">FR</button>
               <button mat-menu-item (click)="localizationService.setLanguage('en')">EN</button>
@@ -67,66 +74,71 @@ import {TranslateService} from "@ngx-translate/core";
 
   `,
   styles: [`
-    .toolbar {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      background-color: #000000;
-      color: #ffffff;
-      font-weight: 600;
-    }
+      .toolbar {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 60px;
+          display: flex;
+          align-items: center;
+          background-color: #000000;
+          color: #ffffff;
+          font-weight: 600;
+      }
 
-    .toolbar img {
-      margin: 0 16px;
-    }
+      .toolbar img {
+          margin: 0 16px;
+      }
 
-    .toolbar #twitter-logo {
-      height: 40px;
-      margin: 0 8px;
-    }
+      .toolbar #twitter-logo {
+          height: 40px;
+          margin: 0 8px;
+      }
 
-    .toolbar #youtube-logo {
-      height: 40px;
-      margin: 0 16px;
-    }
+      .toolbar #youtube-logo {
+          height: 40px;
+          margin: 0 16px;
+      }
 
-    .toolbar #twitter-logo:hover,
-    .toolbar #youtube-logo:hover {
-      opacity: 0.8;
-    }
+      .toolbar #twitter-logo:hover,
+      .toolbar #youtube-logo:hover {
+          opacity: 0.8;
+      }
 
-    .spacer {
-      flex: 1;
-    }
+      .spacer {
+          flex: 1;
+      }
 
-    .auth-button {
-      background-color: #24292e;
-      margin-left: 10px;
-      margin-right: 10px;
-    }
+      .auth-button {
+          background-color: #ffffff;
+          margin-left: 10px;
+          margin-right: 10px;
+      }
 
-    .auth-button:hover {
+      .logout-button {
+          background-color: #ffffff;
+          color: black;
+      }
 
-      background-color: #88a437;
-      color: white;
-    }
+      .auth-button:hover {
 
-    button {
-      background-color: black;
-      color: white;
-    }
+          background-color: #88a437;
+          color: white;
+      }
 
-    button:hover {
-      color: #88a437;
-    }
+      button {
+          background-color: black;
+          color: white;
+      }
 
-    mat-icon {
-        transform: scale(1.75);
-    }
+      button:hover {
+          color: #88a437;
+      }
+
+      mat-icon {
+          transform: scale(1.75);
+      }
   `]
 })
 export class HeaderComponent implements OnInit{
@@ -138,9 +150,9 @@ export class HeaderComponent implements OnInit{
   }
 
   protected _drawer!: MatDrawer;
-  localizationService = inject(LocalizationService);
-  backendService = inject(BackendService)
-  notificationService = inject(NotificationService)
+  backendService = inject(BackendService);
+  notificationService = inject(NotificationService);
+  localizationService = inject(LocalizationService)
   dialog = inject(MatDialog);
   router = inject(Router);
   _name! : string
