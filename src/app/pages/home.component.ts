@@ -253,10 +253,12 @@ export class HomeComponent implements OnInit {
           this.isHeadMaster = (this.backendService.getUserFromLocal()[0] as any).role === "Headmaster";
         })
       } else {
-        this.assessmentsIncomplete = signal<AssessmentForm[]>([]);
-        this.assessmentsCompleted = signal<AssessmentForm[]>([]);
-        this.myAssessments = signal<AssessmentForm[]>([]);
+        this.assessmentsIncomplete.set([])
+        this.assessmentsCompleted.set([])
+        this.myAssessments.set([])
       }
+    }, {
+      allowSignalWrites: true
     })
   }
 

@@ -4,7 +4,7 @@
   "Generate a code for a student": "Générer un code pour un etudiant",
   "Logout": "Déconnexion",
   "Assessment Form": "Formulaire d'évaluation",
-  "Intern Info": "Infos stagiaire",
+  "Intern Info": "Informations stagiaire",
   "Permanent Code": "Code permanent",
   "Unrecognized Permanent code": "Code permanent non reconnu",
   "Firstname" : "Prénom",
@@ -67,5 +67,7 @@
   "Please enter the current password." : "Veuillez entrer le mot de passe actuel",
   "New Password" : "Nouveau mot de passe",
   "Please enter a new password." : "Veuillez entrer un nouveau mot de passe",
-  "A minimum of 6 characters" : "6 caractères minimum"
+  "A minimum of 6 characters" : "6 caractères minimum",
+  "Assessment Form Info" : "Fiche d'évaluation"
+
 }

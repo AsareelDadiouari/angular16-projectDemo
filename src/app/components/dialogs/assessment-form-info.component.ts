@@ -6,10 +6,10 @@ import { AssessmentForm } from "../../models/entities/assessmentForm.model";
   selector: 'app-assessment-form-info',
   template: `
     <div class="assessment-info" *ngIf="data">
-      <h2>Assessment Form Info</h2>
+      <h2>{{'Assessment Form Info' | translate}}</h2>
 
       <div class="section">
-        <h3><span>A.</span> Intern Info</h3>
+        <h3><span>A.</span> {{'Intern Info' | translate}}</h3>
         <div class="details">
           <p><strong>{{'Permanent Code' | translate}}:</strong> {{ data.studentIntern.code }}</p>
           <p><strong>{{'Firstname' | translate}}:</strong> {{ data.studentIntern.firstname }}</p>

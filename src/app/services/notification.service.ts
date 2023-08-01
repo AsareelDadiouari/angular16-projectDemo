@@ -1,4 +1,4 @@
-import {inject, Injectable, signal} from '@angular/core';
+import {effect, inject, Injectable, signal} from '@angular/core';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import {LocalizationService} from "./localization.service";
 import {toObservable} from "@angular/core/rxjs-interop";
@@ -18,11 +18,12 @@ export class NotificationService {
   }
 
   constructor() {
-      toObservable(this.localizationService.translatedMessageSignal).subscribe(value =>{
-          if (value){
-              this.snackBar.open(<string>value, 'Close', this.positionConfig);
-          }
-      })
+    effect(() => {
+      const translated = this.localizationService.translatedMessageSignal();
+
+      if (translated)
+        this.snackBar.open(translated, 'Close', this.positionConfig);
+    })
   }
 
   showSuccessNotification(message: string, duration: number = 3000) {
@@ -30,7 +31,7 @@ export class NotificationService {
   }
 
   showErrorNotification(message: string, duration: number = 3000) {
-      this.localizationService.translatedMessage.set(message);
+    this.localizationService.translatedMessage.set(message);
   }
 
   toggleSpinner(){

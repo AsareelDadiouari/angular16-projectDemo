@@ -109,52 +109,33 @@ export class BackendService {
     );
   }
 
-  localStorageLogin(loginInfo: LoginModel){
-    this.db.database.ref().once('value').then(snapshot => {
-      const users = snapshot.val();
+  localStorageLogin(user: firebase.auth.UserCredential){
+    const found = this.findLocalUserByEmail(utils.getValueOrThrow(user.user?.email))
+      .pipe(take(1))
+      .subscribe({
+      next: value => {
+        this.authenticated.update((data) => {
+          data.value = value.user
+          data.state = true;
 
-      if (users.supervisor.headmaster) {
-        const headmasterKeys = Object.keys(users.supervisor.headmaster);
-        const headmasterArray = Object.values(users.supervisor.headmaster) as Headmaster[];
-        const index = headmasterArray.findIndex((user) => user.email === loginInfo.email && user.password === loginInfo.password);
-
-        if (index !== -1){
-          headmasterArray.forEach(head => delete head.password)
-
-          this.authenticated.set({value: headmasterArray[index], state: true});
-          localStorage.setItem('auth', JSON.stringify({user: headmasterArray[index], role: "Headmaster"}));
+          localStorage.setItem('auth', JSON.stringify({user: value.user, role: value.role}));
           this.notificationService.showSuccessNotification("Logged In");
-          return;
-        }
-      }
 
-      if (users.supervisor.professors) {
-        const professorKeys = Object.keys(users.supervisor.professors);
-        const professorArray = Object.values(users.supervisor.professors) as Professor[];
-        const index = professorArray.findIndex((user) => user.email === loginInfo.email && user.password === loginInfo.password);
-
-        if (index !== -1){
-          professorArray.forEach(prof => delete prof.password)
-
-          this.authenticated.set({value: professorArray[index], state: true});
-          localStorage.setItem('auth', JSON.stringify({user: professorArray[index], role: "Professor"}));
-          this.notificationService.showSuccessNotification("Logged In");
-          return;
-        }
-      }
-      this.notificationService.showErrorNotification("Incorrect password or email");
-    }).catch((err) => this.notificationService.showErrorNotification(err));
+          return data
+        })
+      },
+        error: (err) =>  this.notificationService.showErrorNotification(err ?? "Incorrect password or email")
+    });
   }
 
   firebaseLogin(loginInfo: LoginModel){
     return from(this.fbAuth.signInWithEmailAndPassword(loginInfo.email, loginInfo.password)).pipe(
       tap((user) => {
-        this.localStorageLogin(loginInfo);
+        this.localStorageLogin(user);
       }),
       catchError(err => {
-        this.localStorageLogin(loginInfo);
         this.notificationService.showErrorNotification("Incorrect password or email");
-        return throwError(err)
+        return throwError(() => err)
       })
     );
   }
@@ -244,6 +225,18 @@ export class BackendService {
     return from(this.db.database.ref("assessment/" + assessment.id).update(utils.removeUndefinedProperties(assessment)))
   }
 
+  updateAssessmentCode(id : string, code: string){
+    return from(this.db.database.ref("assessment/" + id).update({
+      internshipGeneratedCode: code
+    })).pipe(
+      tap(_ => this.notificationService.showSuccessNotification("Association code updated")),
+      catchError(err => {
+        this.notificationService.showErrorNotification("Something went wrong")
+        return throwError(err);
+      })
+    )
+  }
+
   getInternByPermanentCode(code: string){
     return this.db.list<Intern>("intern", ref => ref.orderByChild("code").equalTo(code)).valueChanges().pipe(
       map(values => values.find(value => value.code === code))
@@ -257,17 +250,26 @@ export class BackendService {
     )
   }
 
-  updateAssessmentCode(id : string, code: string){
-    return from(this.db.database.ref("assessment/" + id).update({
-      internshipGeneratedCode: code
-    })).pipe(
-      tap(_ => this.notificationService.showSuccessNotification("Association code updated")),
-      catchError(err => {
-        this.notificationService.showErrorNotification("Something went wrong")
-        return throwError(err);
-      })
+  findLocalUserByEmail(email: string): Observable<{user: Supervisor, role: string}>{
+    return combineLatest([this.db.list<Supervisor>("supervisor/professors", ref => ref.orderByChild("email").equalTo(email)).valueChanges(),
+      this.db.list<Supervisor>("supervisor/headmaster", ref => ref.orderByChild("email").equalTo(email)).valueChanges()]).pipe(
+        map(([professors, headmaster]) => {
+          if (professors.some(prof => prof.email === email)){
+            return {
+              user: utils.getValueOrThrow(professors.find(prof => prof.email === email)),
+              role: "Professor"
+            }
+          }
+
+          return {
+            user: utils.getValueOrThrow(headmaster.find(head => head.email === email)),
+            role: "Headmaster"
+          }
+        })
     )
   }
+
+
 
   // Use with caution, kind of create an unexpected large number of data
   populateStudents(number: number){
