@@ -30,7 +30,6 @@ export class AssociateFormDialogComponent implements OnInit{
   }
 
   ngOnInit(): void {
-    console.log(this.data)
   }
 
   submitClicked(data : AssessmentForm){

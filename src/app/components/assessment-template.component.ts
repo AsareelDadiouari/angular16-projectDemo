@@ -183,8 +183,8 @@ export class AssessmentTemplateComponent implements AfterContentInit {
 
   codeEditMode: boolean = false;
   inputValue!: FormControl<string | null>;
-  isProfessor: boolean = (this.backendService.getUserFromLocal()[0] as any).role === "Professor"
-  isHeadMaster: boolean = (this.backendService.getUserFromLocal()[0] as any).role === "Headmaster"
+  isProfessor: boolean = (this.backendService.getSupervisorFromLocalStorage() as any).role === "Professor"
+  isHeadMaster: boolean = (this.backendService.getSupervisorFromLocalStorage() as any).role === "Headmaster"
   router = inject(Router);
   protected readonly options = options;
 

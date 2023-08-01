@@ -4,7 +4,7 @@ import {NotificationService} from "../services/notification.service";
 @Component({
   selector: 'spinner',
   template: `
-    <ng-container *ngIf="notificationService.showSpinner()">
+    <ng-container>
       <div #spinner class="spinner-overlay">
         <mat-progress-spinner color="primary" mode="indeterminate"></mat-progress-spinner>
       </div>
@@ -26,6 +26,4 @@ import {NotificationService} from "../services/notification.service";
     }
   `]
 })
-export class SpinnerComponent {
-  notificationService = inject(NotificationService)
-}
+export class SpinnerComponent {}

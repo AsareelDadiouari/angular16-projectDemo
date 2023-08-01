@@ -146,11 +146,7 @@ export class HeaderComponent implements OnInit{
   @Input()
   set drawer(matDrawer: MatDrawer) {
     this._drawer = matDrawer;
-    this.notificationService.toggleSpinner();
-    setTimeout(() => this.notificationService.toggleSpinner(), 2000);
   }
-  destroyRef = inject(DestroyRef)
-
 
   protected _drawer!: MatDrawer;
   backendService = inject(BackendService);
@@ -161,10 +157,11 @@ export class HeaderComponent implements OnInit{
   _name! : string
   userInfo = this.backendService.getAuthenticatedUser()
 
+  destroyRef = inject(DestroyRef)
+
   constructor() {
     effect(() => {
       this._name = this.userInfo().value?.firstname + " " + this.userInfo().value?.lastname?.toUpperCase()
-      console.log(this.backendService.authenticated().state);
     })
   }
 
@@ -181,9 +178,8 @@ export class HeaderComponent implements OnInit{
   }
 
   logout(){
-    this.backendService.firebaseLogOut().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => this.backendService.localStorageLogout(),
-      error: () => this.backendService.localStorageLogout(),
+    this.backendService.firebaseLogOut().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+      this.notificationService.showSuccessNotification("Logged out");
     })
   }
 }

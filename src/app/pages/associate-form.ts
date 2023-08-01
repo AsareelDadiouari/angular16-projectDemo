@@ -209,7 +209,7 @@ export class AssociateForm implements OnInit{
      this.backendService.createAssessmentForm({
        internshipGeneratedCode : this.internCodeGeneration(),
        studentIntern : this.selectedStudent === undefined ? (this._dataFromDialog as AssessmentForm | undefined)?.studentIntern : this.selectedStudent,
-       supervisor : this.getSupervisorFromLocalStorage() === undefined ? (this._dataFromDialog as AssessmentForm | undefined)?.supervisor : this.getSupervisorFromLocalStorage()
+       supervisor : this.backendService.getSupervisorFromLocalStorage() === undefined ? (this._dataFromDialog as AssessmentForm | undefined)?.supervisor : this.backendService.getSupervisorFromLocalStorage()?.user
      }as AssessmentForm).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(result => {
        this.notificationService.showSuccessNotification("Etudiant associé avec succès");
        this.associateForm.controls.permanentCode.reset();
@@ -227,15 +227,5 @@ export class AssociateForm implements OnInit{
       this.associateForm.controls.permanentCode.value!.slice(0, 3);
   }
 
-  private getSupervisorFromLocalStorage(){
-    const userData = localStorage.getItem('auth');
-    if (userData) {
-      try {
-        const user = JSON.parse(userData);
-        return user.user
-      } catch (error) {
-        console.error('Error parsing user data from local storage:', error);
-      }
-    }
-  }
+
 }

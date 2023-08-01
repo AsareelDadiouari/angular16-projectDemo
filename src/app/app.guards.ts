@@ -20,25 +20,11 @@ export const canActivate: CanActivateFn = (
       .subscribe(val => {
     if (!val.state)
       router.navigate(['/']).then(() => {
-        console.log(route)
-        console.log(state)
         //displayAuthModal(router, dialog)
       })
   });
 
-  return toObservable(authService.authenticated).pipe(
-    map((val) => {
-      if (!val.state){
-        router.navigate(['/']).then(() => displayAuthModal(router, dialog))
-      }
-
-      return val.state as boolean;
-    }),
-    catchError(() => {
-      router.navigate(['/']);
-      return of(false);
-    })
-  );
+  return authService.authenticated().state
 };
 
 function displayAuthModal(router: Router, dialog: MatDialog){

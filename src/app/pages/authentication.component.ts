@@ -207,7 +207,7 @@ export class AuthenticationComponent {
 
   localLogin() {
     this.backendService.firebaseLogin(this.loginForm.getRawValue() as LoginModel).pipe(takeUntilDestroyed(this.destroyRef)).subscribe((value => {
-      localStorage.setItem("refreshToken", JSON.stringify(value?.user!.refreshToken));
+      localStorage.setItem("refreshToken", JSON.stringify(this.backendService.fbUser()?.refreshToken));
     }));
   }
 

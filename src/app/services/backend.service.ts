@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-import {computed, inject, Injectable, signal, Signal, WritableSignal} from "@angular/core";
+import {initializeApp} from "firebase/app";
+import {getAnalytics} from "firebase/analytics";
+import {computed, effect, inject, Injectable, signal} from "@angular/core";
 import {environment} from "../../environments/environment";
 import {AngularFireDatabase} from "@angular/fire/compat/database";
 import {Supervisor} from "../models/entities/supervisor.model";
@@ -9,17 +9,15 @@ import {Professor} from "../models/entities/professor.model";
 import {Headmaster} from "../models/entities/headmaster.model";
 import {NotificationService} from "./notification.service";
 import {LoginModel} from "../models/entities/login.model";
-import * as assert from "assert";
 import {Router} from "@angular/router";
 import {
-  BehaviorSubject, catchError, combineLatest,
-  flatMap,
+  catchError,
+  combineLatest, debounceTime,
   forkJoin,
-  from,
-  map, merge,
+  from, fromEvent,
+  map,
   mergeMap,
-  Observable,
-  of, scan,
+  Observable, of, shareReplay,
   switchMap,
   take,
   tap,
@@ -30,11 +28,8 @@ import {HttpClient} from "@angular/common/http";
 import {Intern} from "../models/entities/intern";
 import {AngularFireAuth} from "@angular/fire/compat/auth";
 import {AssessmentForm} from "../models/entities/assessmentForm.model";
-import {reauthenticateWithCredential} from "@angular/fire/auth";
 import utils from "../utils";
 import firebase from "firebase/compat";
-import {LocalizationService} from "./localization.service";
-import {translate} from "@angular/localize/tools";
 
 
 @Injectable({
@@ -48,16 +43,31 @@ export class BackendService {
   notificationService = inject(NotificationService);
   router = inject(Router);
   http = inject(HttpClient);
-  fbUser!: firebase.User | null;
+  fbUser = toSignal(this.fbAuth.user.pipe(
+    tap(value => {
+      if (value){
+        this.authenticated.set({value: this.authenticated().value, state: localStorage.getItem('auth') !== null})
+      }
+
+      if (value === null) {
+        localStorage.removeItem('auth');
+        localStorage.removeItem('refreshToken');
+        this.authenticated.set({value: undefined, state: localStorage.getItem('auth') !== null})
+      }
+    })
+  ));
 
   authenticated= signal({
-    value : this.getUserFromLocal()[0],
-    state : this.getUserFromLocal()[1]
+    value : this.getSupervisorFromLocalStorage(),
+    state : this.fbUser() !== undefined && this.fbUser() !== null
   })
 
   constructor() {
-    this.fbAuth.user.subscribe(user => {
-      this.fbUser = user;
+    effect(() => {
+      console.log(this.authenticated())
+    })
+    fromEvent<StorageEvent>(window, "storage").subscribe(event => {
+      console.log(event)
     })
   }
 
@@ -110,47 +120,24 @@ export class BackendService {
   }
 
   localStorageLogin(user: firebase.auth.UserCredential){
-    const found = this.findLocalUserByEmail(utils.getValueOrThrow(user.user?.email))
-      .pipe(take(1))
-      .subscribe({
-      next: value => {
-        this.authenticated.update((data) => {
-          data.value = value.user
-          data.state = true;
-
-          localStorage.setItem('auth', JSON.stringify({user: value.user, role: value.role}));
+    return this.findLocalUserByEmail(utils.getValueOrThrow(user.user?.email))
+      .pipe(
+        tap((data) => {
+          this.authenticated.set({value: data, state: true});
+          localStorage.setItem('auth', JSON.stringify(data));
           this.notificationService.showSuccessNotification("Logged In");
-
-          return data
-        })
-      },
-        error: (err) =>  this.notificationService.showErrorNotification(err ?? "Incorrect password or email")
-    });
+        }),
+      )
   }
 
   firebaseLogin(loginInfo: LoginModel){
     return from(this.fbAuth.signInWithEmailAndPassword(loginInfo.email, loginInfo.password)).pipe(
-      tap((user) => {
-        this.localStorageLogin(user);
-      }),
+      switchMap((user) => this.localStorageLogin(user)),
       catchError(err => {
         this.notificationService.showErrorNotification("Incorrect password or email");
         return throwError(() => err)
       })
     );
-  }
-
-  localStorageLogout(){
-    this.authenticated.update((value) => {
-      value.value = {}
-      value.state = false;
-      return value;
-    });
-    this.notificationService.showSuccessNotification("Logged out");
-    localStorage.removeItem('auth');
-    localStorage.removeItem('refreshToken');
-
-    //this.router.navigate(['/']).then(() => this.notificationService.showSuccessNotification("Deconnexion Reussi"))
   }
 
   firebaseLogOut(){
@@ -170,7 +157,7 @@ export class BackendService {
             password : changePasswordForm.newPassword
           }).then(() => {
             this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.currentPassword).then(value => {
-              this.fbUser?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Password updated"));
+              this.fbUser()?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Password updated"));
             }).finally(() => this.fbAuth.signOut())
           })
         }
@@ -181,7 +168,7 @@ export class BackendService {
             password : changePasswordForm.newPassword
           }).then(() => {
             this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.currentPassword).then(value => {
-              this.fbUser?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Password updated"));
+              this.fbUser()?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Password updated"));
             }).finally(() => this.fbAuth.signOut())
           })
         }
@@ -203,6 +190,7 @@ export class BackendService {
   getAuthenticatedUser(){
     return computed(() => {
       const data: any  = this.authenticated().value
+
       return {
         value: data?.user === undefined ? data as Professor | Headmaster | Partial<Supervisor> : data.user,
         state: this.authenticated().state
@@ -218,7 +206,13 @@ export class BackendService {
   }
 
   getAssessments(){
-    return this.db.list<AssessmentForm>('assessment', ref => ref.orderByChild('timestamp')).valueChanges();
+    return this.db
+      .list<AssessmentForm>('assessment', ref => ref.orderByChild('timestamp'))
+      .valueChanges()
+      .pipe(
+        tap(() => this.notificationService.spinner.update(val => true)),
+        shareReplay({ bufferSize: 1, refCount: true })
+      );
   }
 
   updateAssessment(assessment: AssessmentForm): Observable<void>{
@@ -232,7 +226,7 @@ export class BackendService {
       tap(_ => this.notificationService.showSuccessNotification("Association code updated")),
       catchError(err => {
         this.notificationService.showErrorNotification("Something went wrong")
-        return throwError(err);
+        return throwError(() => err);
       })
     )
   }
@@ -269,10 +263,23 @@ export class BackendService {
     )
   }
 
+  public getSupervisorFromLocalStorage() : {user: Partial<Supervisor>, role:string} | undefined{
+    const userData = localStorage.getItem('auth');
+    if (userData) {
+      try {
+        return JSON.parse(userData) satisfies {user: Partial<Supervisor>, role:string}
+      } catch (error) {
+        console.error('Error parsing user data from local storage:', error);
+      }
+    }
+    return undefined;
+  }
+
+  //-------------------------------------------------------------------------------
 
 
   // Use with caution, kind of create an unexpected large number of data
-  populateStudents(number: number){
+  private populateStudents(number: number){
     const url = "https://randomuser.me/api/"
     const observables = []
 
@@ -294,9 +301,6 @@ export class BackendService {
     return forkJoin(observables).pipe(mergeMap(results => results));
   }
 
-  //-------------------------------------------------------------------------------
-
-
   private codeGen(user: Supervisor | Partial<Intern>): string{
     return (
       (user?.firstname?.substring(0, 2)?.toUpperCase() || '') +
@@ -316,19 +320,5 @@ export class BackendService {
     return this.db.list<Supervisor>(path, ref =>
       ref.orderByChild('email').equalTo(email)
         .ref.orderByChild('password').equalTo(password)).valueChanges();
-  }
-
-  public getUserFromLocal(){
-    const authData = localStorage.getItem('auth');
-
-    if (authData) {
-      try {
-        const user = JSON.parse(authData);
-        return user.role === "Professor" ? [user as Professor, true] : [user as Headmaster, true]
-      } catch (error) {
-        console.error('Error parsing user data from local storage:', error);
-      }
-    }
-    return [{}, false];
   }
 }

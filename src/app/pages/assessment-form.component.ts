@@ -503,8 +503,6 @@ export class AssessmentFormComponent implements AfterContentInit, AfterViewInit{
   ngAfterContentInit() {
     of(history.state.data).subscribe((value: AssessmentForm | undefined) => {
       this.assessmentFormRouter = value;
-      console.log(this.updateMode);
-      console.log(this.activatedRoute.snapshot.paramMap.get('id?'))
 
       if (this.assessmentFormRouter){
 
@@ -694,7 +692,6 @@ export class AssessmentFormComponent implements AfterContentInit, AfterViewInit{
     if (typeof value === "string") {
       filterValue = value.toLowerCase();
     }
-    console.log(value)
 
     return this.backendService.getStudents(<string>filterValue).pipe(
       tap(students => console.log(students)),

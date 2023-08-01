@@ -3,6 +3,7 @@ import {AssessmentForm} from "../models/entities/assessmentForm.model";
 import {BackendService} from "../services/backend.service";
 import options from "../utils";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import utils from "../utils";
 
 @Component({
   selector: 'app-landing-page',
@@ -239,23 +240,20 @@ export class HomeComponent implements OnInit {
 
   constructor() {
     effect(() => {
-      if (this.userInfo().state) {
+      if (this.userInfo().state && this.userInfo().value) {
         this.backendService.getAssessments().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(data => {
-          if (this.userInfo().state && (this.backendService.getUserFromLocal()[0] as any).role === "Professor") {
+          if (this.userInfo().state && (utils.getValueOrThrow(this.backendService.getSupervisorFromLocalStorage())).role === "Professor") {
             this.myAssessments.set(data.filter(value => value.supervisor.code === this.userInfo().value.code))
 
-          } else if (this.userInfo().state && (this.backendService.getUserFromLocal()[0] as any).role === "Headmaster") {
+          } else if (this.userInfo().state && (utils.getValueOrThrow(this.backendService.getSupervisorFromLocalStorage())).role === "Headmaster") {
             this.assessmentsIncomplete.set(data.filter(value => value.supervisor.code !== this.userInfo().value.code && !options.formIsCompleted(value)))
             this.assessmentsCompleted.set(data.filter(value => value.supervisor.code !== this.userInfo().value.code && options.formIsCompleted(value)))
             this.myAssessments.set(data.filter(value => value.supervisor.code === this.userInfo().value.code))
           }
 
-          this.isHeadMaster = (this.backendService.getUserFromLocal()[0] as any).role === "Headmaster";
+          this.isHeadMaster = (utils.getValueOrThrow(this.backendService.getSupervisorFromLocalStorage())).role === "Headmaster";
+          setTimeout(() => this.backendService.notificationService.spinner.update(val => false), 700)
         })
-      } else {
-        this.assessmentsIncomplete.set([])
-        this.assessmentsCompleted.set([])
-        this.myAssessments.set([])
       }
     }, {
       allowSignalWrites: true

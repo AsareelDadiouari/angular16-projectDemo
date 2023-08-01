@@ -8,7 +8,7 @@ import {toObservable} from "@angular/core/rxjs-interop";
 })
 export class NotificationService {
   snackBar = inject(MatSnackBar)
-  showSpinner = signal(false);
+  spinner = signal(false);
   localizationService = inject(LocalizationService)
     positionConfig: MatSnackBarConfig ={
     duration: 2000,
@@ -19,22 +19,23 @@ export class NotificationService {
 
   constructor() {
     effect(() => {
-      const translated = this.localizationService.translatedMessageSignal();
+      if (this.localizationService.translatedMessageSignal()){
+        const translated = this.localizationService.translatedMessageSignal()
 
-      if (translated)
-        this.snackBar.open(translated, 'Close', this.positionConfig);
+        if (translated != null) {
+          this.snackBar.open(translated, 'Close', this.positionConfig);
+        }
+      }
     })
   }
 
   showSuccessNotification(message: string, duration: number = 3000) {
-      this.localizationService.translatedMessage.set(message);
-  }
-
-  showErrorNotification(message: string, duration: number = 3000) {
+    this.positionConfig.panelClass = 'success-snackbar'
     this.localizationService.translatedMessage.set(message);
   }
 
-  toggleSpinner(){
-    this.showSpinner.update(value => !value);
+  showErrorNotification(message: string, duration: number = 3000) {
+    this.positionConfig.panelClass = 'failure-snackbar';
+    this.localizationService.translatedMessage.set(message);
   }
 }

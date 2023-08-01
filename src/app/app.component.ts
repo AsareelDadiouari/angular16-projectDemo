@@ -19,7 +19,7 @@ registerLocaleData(localeEn, 'en');
       </mat-drawer>
 
       <app-header [drawer]="drawer"></app-header>
-      <spinner></spinner>
+      <spinner *ngIf="notificationService.spinner()"></spinner>
 
       <!-- Main content -->
       <div class="content" role="main">
@@ -31,6 +31,7 @@ registerLocaleData(localeEn, 'en');
   providers: [{ provide: LOCALE_ID, useValue: 'en-US' }]
 })
 export class AppComponent implements OnInit{
+  notificationService = inject(NotificationService)
 
   ngOnInit() {
 
