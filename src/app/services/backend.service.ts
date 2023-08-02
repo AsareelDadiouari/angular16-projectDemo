@@ -45,14 +45,15 @@ export class BackendService {
   http = inject(HttpClient);
   fbUser = toSignal(this.fbAuth.user.pipe(
     tap(value => {
-      if (value){
-        this.authenticated.set({value: this.authenticated().value, state: localStorage.getItem('auth') !== null})
-      }
 
       if (value === null) {
         localStorage.removeItem('auth');
         localStorage.removeItem('refreshToken');
-        this.authenticated.set({value: undefined, state: localStorage.getItem('auth') !== null})
+        this.authenticated.set({value: undefined, state: false})
+      }
+
+      if (value && this.authenticated().value){
+        this.authenticated.set({value: this.authenticated().value, state: true})
       }
     })
   ));
@@ -64,10 +65,9 @@ export class BackendService {
 
   constructor() {
     effect(() => {
-      console.log(this.authenticated())
     })
     fromEvent<StorageEvent>(window, "storage").subscribe(event => {
-      console.log(event)
+      console.log("EVENT : ",event);
     })
   }
 
@@ -123,7 +123,7 @@ export class BackendService {
     return this.findLocalUserByEmail(utils.getValueOrThrow(user.user?.email))
       .pipe(
         tap((data) => {
-          this.authenticated.set({value: data, state: true});
+          this.authenticated.set({value: data, state: data && this.fbUser() !== null});
           localStorage.setItem('auth', JSON.stringify(data));
           this.notificationService.showSuccessNotification("Logged In");
         }),
@@ -248,18 +248,21 @@ export class BackendService {
     return combineLatest([this.db.list<Supervisor>("supervisor/professors", ref => ref.orderByChild("email").equalTo(email)).valueChanges(),
       this.db.list<Supervisor>("supervisor/headmaster", ref => ref.orderByChild("email").equalTo(email)).valueChanges()]).pipe(
         map(([professors, headmaster]) => {
+          console.log(professors)
+          console.log(headmaster)
           if (professors.some(prof => prof.email === email)){
             return {
-              user: utils.getValueOrThrow(professors.find(prof => prof.email === email)),
+              user: professors.find(prof => prof.email === email)!,
               role: "Professor"
             }
           }
 
           return {
-            user: utils.getValueOrThrow(headmaster.find(head => head.email === email)),
+            user: headmaster.find(head => head.email === email)!,
             role: "Headmaster"
           }
-        })
+        }),
+      catchError((err) => throwError(() => err))
     )
   }
 

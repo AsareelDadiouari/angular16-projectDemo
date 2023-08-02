@@ -1,9 +1,9 @@
-import {AfterContentInit, Component, DestroyRef, inject, Input} from "@angular/core";
+import {AfterContentInit, Component, DestroyRef, inject, Input, OnInit} from "@angular/core";
 import {AssessmentForm} from "../models/entities/assessmentForm.model";
 import {BackendService} from "../services/backend.service";
 import {MatDialog} from "@angular/material/dialog";
 import {FormControl} from "@angular/forms";
-import options from "../utils";
+import utils from "../utils";
 import {AssessmentFormInfoComponent} from "./dialogs/assessment-form-info.component";
 import {Router} from "@angular/router";
 import {LocalizationService} from "../services/localization.service";
@@ -173,7 +173,7 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
     }
   `]
 })
-export class AssessmentTemplateComponent implements AfterContentInit {
+export class AssessmentTemplateComponent implements OnInit {
   backendService = inject(BackendService);
   localizationService = inject(LocalizationService);
   dialog = inject(MatDialog);
@@ -183,13 +183,16 @@ export class AssessmentTemplateComponent implements AfterContentInit {
 
   codeEditMode: boolean = false;
   inputValue!: FormControl<string | null>;
-  isProfessor: boolean = (this.backendService.getSupervisorFromLocalStorage() as any).role === "Professor"
-  isHeadMaster: boolean = (this.backendService.getSupervisorFromLocalStorage() as any).role === "Headmaster"
+  isProfessor: boolean = this.backendService.authenticated().value?.role === "Professor"
+  isHeadMaster: boolean = this.backendService.authenticated().value?.role === "Headmaster"
   router = inject(Router);
-  protected readonly options = options;
+  protected readonly options = utils;
 
-  ngAfterContentInit(): void {
-    this.inputValue = new FormControl<string>(options.getValueOrThrow(this.assessment.internshipGeneratedCode));
+  constructor() {
+  }
+
+  ngOnInit(): void {
+    this.inputValue = new FormControl<string>(utils.getValueOrThrow(this.assessment.internshipGeneratedCode));
   }
 
   fill() {
@@ -203,7 +206,7 @@ export class AssessmentTemplateComponent implements AfterContentInit {
   }
 
   changeCode() {
-    this.backendService.updateAssessmentCode(options.getValueOrThrow(this.assessment.id), options.getValueOrThrow(this.inputValue.getRawValue())).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+    this.backendService.updateAssessmentCode(utils.getValueOrThrow(this.assessment.id), utils.getValueOrThrow(this.inputValue.getRawValue())).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.codeEditMode = false;
     })
   }
