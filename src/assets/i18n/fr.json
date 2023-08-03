@@ -68,6 +68,9 @@
   "New Password" : "Nouveau mot de passe",
   "Please enter a new password." : "Veuillez entrer un nouveau mot de passe",
   "A minimum of 6 characters" : "6 caractères minimum",
-  "Assessment Form Info" : "Fiche d'évaluation"
-
+  "Assessment Form Info" : "Fiche d'évaluation",
+  "Disable" : "Désactiver",
+  "Enable" : "Activer",
+  "Close" : "Fermer",
+  "Invalid Code !": "Code invalide !"
 }

@@ -8,6 +8,7 @@ import {AssessmentFormInfoComponent} from "./dialogs/assessment-form-info.compon
 import {Router} from "@angular/router";
 import {LocalizationService} from "../services/localization.service";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import {NotificationService} from "../services/notification.service";
 
 @Component({
   selector: "app-assessment-template",
@@ -25,7 +26,7 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
             <span>
               <input type="text" [formControl]="inputValue">
               <mat-icon (click)="changeCode()">check</mat-icon>
-              <mat-icon (click)="codeEditMode = false">close</mat-icon>
+              <mat-icon (click)="codeEditMode = false;inputValue.setValue(assessment.internshipGeneratedCode!)">close</mat-icon>
             </span>
                   </ng-container>
                   <mat-icon class="completed-badge" *ngIf="options.formIsCompleted(this.assessment)"
@@ -175,6 +176,7 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
 })
 export class AssessmentTemplateComponent implements OnInit {
   backendService = inject(BackendService);
+  notificationService = inject(NotificationService);
   localizationService = inject(LocalizationService);
   dialog = inject(MatDialog);
   userInfo = this.backendService.getAuthenticatedUser();
@@ -206,8 +208,12 @@ export class AssessmentTemplateComponent implements OnInit {
   }
 
   changeCode() {
-    this.backendService.updateAssessmentCode(utils.getValueOrThrow(this.assessment.id), utils.getValueOrThrow(this.inputValue.getRawValue())).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-      this.codeEditMode = false;
-    })
+    if (/\d{2}(HIV|ETE|AUT)\d{2}[A-Z]{4}/.test(utils.getValueOrThrow(this.inputValue.getRawValue()?.trim()))){
+      this.backendService.updateAssessmentCode(utils.getValueOrThrow(this.assessment.id), utils.getValueOrThrow(this.inputValue.getRawValue()?.trim())).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
+        this.codeEditMode = false;
+      })
+    } else {
+      this.notificationService.showErrorNotification("Invalid Code !")
+    }
   }
 }

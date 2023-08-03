@@ -30,7 +30,7 @@ import options from "../utils";
                               #auto="matAutocomplete">
 
               <div *ngIf="_dataFromDialog; else normal">
-                <mat-option [value]="_dataFromDialog.studentIntern.code">
+                <mat-option  [value]="_dataFromDialog.studentIntern.code">
                   {{_dataFromDialog.studentIntern.code}}
                 </mat-option>
               </div>
@@ -50,10 +50,10 @@ import options from "../utils";
               <mat-label for="professorFullname">{{'Professor' | translate}}</mat-label>
               <input type="text" id="professorFullname" formControlName="professorFullname" matInput>
             </mat-form-field>
-            <button class="submit-button" mat-raised-button
+            <button style="margin-bottom: 24px" mat-raised-button
                     [color]="this.associateForm.controls.professorFullname.enabled ?'warn' : 'primary'"
                     (click)="onButtonChange()">
-              {{this.associateForm.controls.professorFullname.enabled ? "Disable" : "Enable" }}
+              {{this.associateForm.controls.professorFullname.enabled ? ("Disable" | translate) : ("Enable" | translate) }}
             </button>
           </div>
         </div>
@@ -129,6 +129,7 @@ export class AssociateForm implements OnInit{
       this._dataFromDialog.studentIntern.code = (this.dataFromDialog?.studentIntern as any).permanentCode
     }
 
+    this.associateForm.controls.permanentCode.setValue(this._dataFromDialog.studentIntern.code);
     this.associateForm.controls.professorFullname.setValue(this._dataFromDialog?.supervisor.firstname + " " + this._dataFromDialog?.supervisor.lastname)
   };
   protected _dataFromDialog!: AssessmentForm | undefined;
@@ -157,7 +158,7 @@ export class AssociateForm implements OnInit{
   }
 
   associateForm = this.fb.group({
-    permanentCode : ['', Validators.required],
+    permanentCode : [{value: '', disabled: true}, [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
     professorFullname : [''],
     internshipTerm : ['', Validators.required],
     internshipNumber : ['', Validators.required]
@@ -197,7 +198,6 @@ export class AssociateForm implements OnInit{
   }
 
   onOptionSelected($event: MatAutocompleteSelectedEvent) {
-
   }
 
   submitForm() {
@@ -226,6 +226,4 @@ export class AssociateForm implements OnInit{
       this.associateForm.controls.professorFullname.value!.split(' ').map(word => word.charAt(0)).join('') +
       this.associateForm.controls.permanentCode.value!.slice(0, 3);
   }
-
-
 }

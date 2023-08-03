@@ -6,7 +6,8 @@ import {BackendService} from "./services/backend.service";
 import {NotificationService} from "./services/notification.service";
 import {from} from "rxjs";
 import {TranslateService} from "@ngx-translate/core";
-import {LocalizationService} from "./services/localization.service"; // Import locale data for English
+import {LocalizationService} from "./services/localization.service";
+import utils from "./utils"; // Import locale data for English
 registerLocaleData(localeEn, 'en');
 
 @Component({
