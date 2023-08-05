@@ -208,7 +208,7 @@ export class AssessmentTemplateComponent implements OnInit {
   }
 
   changeCode() {
-    if (/\d{2}(HIV|ETE|AUT)\d{2}[A-Z]{4}/.test(utils.getValueOrThrow(this.inputValue.getRawValue()?.trim()))){
+    if (/\d{2}(HIV|ETE|AUT)\d{2}[A-Z]{5}$/.test(utils.getValueOrThrow(this.inputValue.getRawValue()?.trim()))){
       this.backendService.updateAssessmentCode(utils.getValueOrThrow(this.assessment.id), utils.getValueOrThrow(this.inputValue.getRawValue()?.trim())).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
         this.codeEditMode = false;
       })

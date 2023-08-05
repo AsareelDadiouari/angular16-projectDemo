@@ -16,6 +16,7 @@ import {Headmaster} from "../models/entities/headmaster.model";
 import {LoginModel} from "../models/entities/login.model";
 import {MatTabGroup} from "@angular/material/tabs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import utils from "../utils";
 
 @Component({
   selector: 'app-login',
@@ -46,8 +47,8 @@ import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
           <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">{{'Login'| translate}}</button>
           <a (click)="clickOnForgetPassword()" style="color: #1976d2; margin-top: 10px; cursor: pointer">{{'Click here to change your password.' | translate}}</a>
         </form>
-
       </mat-tab>
+
       <mat-tab class="signUp" [label]="localizationService.currentLanguage() === 'en' ? 'SignUp' : 'Inscription'">
         <form class="signup-form" [formGroup]="signUpForm" (submit)="signUp()">
           <div class="form-group">
@@ -249,6 +250,7 @@ export class AuthenticationComponent {
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
       this.displayChangePasswordTab = false;
       this.tabIsExpanded.emit(this.displayChangePasswordTab);
+      this.loginForm.controls.password.reset()
       this.tabGroup.selectedIndex = 0;
     })
   }
