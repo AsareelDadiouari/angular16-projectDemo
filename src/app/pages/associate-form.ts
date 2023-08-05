@@ -124,6 +124,7 @@ export class AssociateForm implements OnInit{
   @Input()
   set dataFromDialog(data: AssessmentForm | undefined){
     this._dataFromDialog = options.getValueOrThrow(data);
+    this.associateForm.controls.permanentCode.disable();
 
     if (this._dataFromDialog.studentIntern.code === undefined){
       this._dataFromDialog.studentIntern.code = (this.dataFromDialog?.studentIntern as any).permanentCode
@@ -158,7 +159,7 @@ export class AssociateForm implements OnInit{
   }
 
   associateForm = this.fb.group({
-    permanentCode : [{value: '', disabled: true}, [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
+    permanentCode : [{value: '', disabled: false}, [Validators.required, Validators.pattern(/^([a-zA-Z]{4})(\d{2})(\d{2})(\d{2})(\d{2})$/)]],
     professorFullname : [''],
     internshipTerm : ['', Validators.required],
     internshipNumber : ['', Validators.required]

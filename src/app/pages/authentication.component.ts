@@ -47,8 +47,8 @@ import utils from "../utils";
           <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">{{'Login'| translate}}</button>
           <a (click)="clickOnForgetPassword()" style="color: #1976d2; margin-top: 10px; cursor: pointer">{{'Click here to change your password.' | translate}}</a>
         </form>
-
       </mat-tab>
+
       <mat-tab class="signUp" [label]="localizationService.currentLanguage() === 'en' ? 'SignUp' : 'Inscription'">
         <form class="signup-form" [formGroup]="signUpForm" (submit)="signUp()">
           <div class="form-group">
