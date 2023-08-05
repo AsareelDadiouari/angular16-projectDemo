@@ -16,6 +16,7 @@ import {Headmaster} from "../models/entities/headmaster.model";
 import {LoginModel} from "../models/entities/login.model";
 import {MatTabGroup} from "@angular/material/tabs";
 import {takeUntilDestroyed} from "@angular/core/rxjs-interop";
+import utils from "../utils";
 
 @Component({
   selector: 'app-login',
@@ -249,6 +250,7 @@ export class AuthenticationComponent {
     }).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(value => {
       this.displayChangePasswordTab = false;
       this.tabIsExpanded.emit(this.displayChangePasswordTab);
+      this.loginForm.controls.password.reset()
       this.tabGroup.selectedIndex = 0;
     })
   }

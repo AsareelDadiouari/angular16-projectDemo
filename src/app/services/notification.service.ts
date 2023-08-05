@@ -26,8 +26,9 @@ export class NotificationService {
     this.positionConfig.duration = duration
     this.positionConfig.panelClass = 'success-snackbar'
 
-    this.localizationService.translationService.get(message).pipe(take(1)).subscribe(translated => {
-      this.snackBar.open(translated, 'Close', this.positionConfig)
+    this.localizationService.translationService.get(message).pipe(take(1)).subscribe({
+      next: translated => this.snackBar.open(translated, 'Close', this.positionConfig),
+      error: err => this.snackBar.open(err, 'Close', this.positionConfig),
     })
   }
 
@@ -35,8 +36,9 @@ export class NotificationService {
     this.positionConfig.duration = duration
     this.positionConfig.panelClass = 'failure-snackbar';
 
-    this.localizationService.translationService.get(message).pipe(take(1)).subscribe(translated => {
-      this.snackBar.open(translated, 'Close', this.positionConfig)
+    this.localizationService.translationService.get(message).pipe(take(1)).subscribe({
+      next: translated => this.snackBar.open(translated, 'Close', this.positionConfig),
+      error: err => this.snackBar.open(err, 'Close', this.positionConfig),
     })
   }
 }

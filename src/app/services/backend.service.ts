@@ -150,25 +150,31 @@ export class BackendService {
     ]).pipe(
       map(([value1, value2]) => {
 
-        let user: Supervisor | undefined = undefined
-        if (value1){
-           user = value1.find(val => val.email === changePasswordForm.email);
+        let user: Professor | Headmaster | undefined;
+        if (value1.some(val => val.email === changePasswordForm.email)){
+           user = value1.find(val => val.email === changePasswordForm.email) satisfies Professor | undefined as Professor;
           this.db.database.ref("supervisor/professors/" + user?.id).update({
             password : changePasswordForm.newPassword
           }).then(() => {
             this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.currentPassword).then(value => {
-              this.fbUser()?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Password updated"));
+              value.user?.updatePassword(changePasswordForm.newPassword).then(() => {
+                this.notificationService.showSuccessNotification("Password updated");
+                user!.password = changePasswordForm.newPassword;
+              });
             }).finally(() => this.fbAuth.signOut())
           })
         }
 
-        if (value2){
-           user = value2.find(val => val.email === changePasswordForm.email);
+        if (value2.some(val => val.email === changePasswordForm.email)){
+           user = value2.find(val => val.email === changePasswordForm.email) satisfies Headmaster | undefined as Headmaster;
           this.db.database.ref("supervisor/headmaster/" + user?.id).update({
             password : changePasswordForm.newPassword
           }).then(() => {
             this.fbAuth.signInWithEmailAndPassword(changePasswordForm.email, changePasswordForm.currentPassword).then(value => {
-              this.fbUser()?.updatePassword(changePasswordForm.newPassword).then(() => this.notificationService.showSuccessNotification("Password updated"));
+              value.user?.updatePassword(changePasswordForm.newPassword).then(() => {
+                this.notificationService.showSuccessNotification("Password updated");
+                user!.password = changePasswordForm.newPassword;
+              });
             }).finally(() => this.fbAuth.signOut())
           })
         }
@@ -317,8 +323,8 @@ export class BackendService {
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
 
-  private credentialsCheck(path: string, email: string, password: string): Observable<Supervisor[]>{
-    return this.db.list<Supervisor>(path, ref =>
+  private credentialsCheck(path: string, email: string, password: string): Observable<Professor[] | Headmaster[]>{
+    return this.db.list<Professor | Headmaster>(path, ref =>
       ref.orderByChild('email').equalTo(email)
         .ref.orderByChild('password').equalTo(password)).valueChanges();
   }
