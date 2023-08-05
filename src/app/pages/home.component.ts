@@ -74,7 +74,8 @@ import utils from "../utils";
   `,
   styles: [`
     .custom-container {
-      width: 90rem;
+      width: 100%; /* Set the width to 100% */
+      max-width: 90rem; /* Set a maximum width if needed */
       height: 15rem;
       background-color: #ffffff;
       border: 1px solid #e0e0e0;
@@ -82,6 +83,7 @@ import utils from "../utils";
       box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
       padding: 0.75rem;
     }
+
 
     .scroll-container {
       display: flex;

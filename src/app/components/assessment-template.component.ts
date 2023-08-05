@@ -203,6 +203,8 @@ export class AssessmentTemplateComponent implements OnInit {
 
   infos() {
     const dialogRef = this.dialog.open(AssessmentFormInfoComponent, {
+      width: '600px',
+      maxHeight: '80vh',
       data: this.assessment
     });
   }
