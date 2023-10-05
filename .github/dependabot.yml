@@ -1,14 +1,16 @@
 version: 2
 registries:
-    npmjs:
-      type: npm-registry
-      url: https://registry.npmjs.org
+  npmjs:
+    type: npm-registry
+    url: https://registry.npmjs.org
 updates:
-  - package-ecosystem: npm
-    directory: /
+  - package-ecosystem: "npm"
+    directory: "/"
     schedule:
-      interval: daily
+      interval: "daily"
     version-resolver:
-      my-custom-resolver:
-        type: npm
-        script: ../version-resolver.js
+      npm:
+        enabled: true
+        package-ecosystem: "npm"
+        directory: "/"
+        script: "../version-resolver.js" # Relative path to your custom version resolver script
