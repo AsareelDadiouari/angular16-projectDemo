@@ -5,9 +5,9 @@ updates:
     schedule:
       interval: daily
     registries:
-      npm:
+      npmjs:
         type: npm-registry
-        url: https://registry.npmjs.com
+        url: https://registry.npmjs.org
     version-resolver:
       my-custom-resolver:
         type: npm
